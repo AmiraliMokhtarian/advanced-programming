@@ -1,6 +1,6 @@
 # C++ ToDo List
 
-Simple command line ToDo list manager written in C++.
+Simple command line ToDo list manager written in C++ with support for task dependencies.
 
 ## Commands
 
