@@ -16,7 +16,7 @@ add a task with dependencies
 DONE <id>  
 mark a task as done
 
-STATUS <id>  
+STATUS <id> 
 show task information
 
 PRINT_ALL  
