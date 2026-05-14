@@ -1,5 +1,14 @@
 #include <iostream>
 
+/*
+* ========== Naming Convention Guideline ==========
+* Class names: PascalCase
+* Function names : camelCase
+* Variable names : lower_snake_case
+* Constant names : UPPER_SNAKE_CASE
+* =================================================
+*/
+
 using namespace std;
 
 void readBoard(int board[9][9]);
@@ -60,14 +69,14 @@ bool isValid(int board[9][9], int row, int col, int num)
 
     //checking 3*3 sub board
 
-    int startRow = (row / 3) * 3;
-    int startCol = (col / 3) * 3;
+    int start_row = (row / 3) * 3;
+    int start_col = (col / 3) * 3;
 
     for(int i = 0 ; i < 3 ; i++)
     {
         for(int j = 0 ; j < 3 ; j++)
         {
-            if(board[startRow + i][startCol + j] == num)
+            if(board[start_row + i][start_col + j] == num)
                 return false;
         }
     }

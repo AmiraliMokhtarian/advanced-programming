@@ -1,5 +1,14 @@
 #include <iostream>
 
+/*
+* ========== Naming Convention Guideline ==========
+* Class names: PascalCase
+* Function names : camelCase
+* Variable names : lower_snake_case
+* Constant names : UPPER_SNAKE_CASE
+* =================================================
+*/
+
 using namespace std;
 
 const int N = 8;
@@ -21,7 +30,7 @@ int main()
 
 void readBoard(char board[N][N])
 {
-    for(int i = 0 ; i<N ; i++)
+    for(int i = 0 ; i < N ; i++)
     {
         for(int j = 0 ; j < N ; j++)
         {
@@ -35,26 +44,26 @@ int solve(int queens[N], int row, char board[N][N])
     if(row == N)
         return 1;
     
-    int possibleCondition = 0;
+    int possible_condition = 0;
 
     for(int col = 0 ; col < N ; col++)
     {
         if(isSafe(queens, row, col, board) && board[row][col] != '*')
         {
             queens[row] = col;
-            possibleCondition += solve(queens, row + 1, board);
+            possible_condition += solve(queens, row + 1, board);
             queens[row] = -1; //backtracking
         }
     }
-    return possibleCondition;
+    return possible_condition;
 }
 
 bool isSafe(int queens[N], int row, int col, char board[N][N])
 {
-    for(int prevRow = 0 ; prevRow < row ; prevRow++)
+    for(int prev_row = 0 ; prev_row < row ; prev_row++)
     {
-        if(col == queens[prevRow]
-            || abs(row - prevRow) == abs(col - queens[prevRow]))
+        if(col == queens[prev_row]
+            || abs(row - prev_row) == abs(col - queens[prev_row]))
         {
             return false;
         }
