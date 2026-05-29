@@ -22,3 +22,8 @@ bool module::install(transactionContext &tx)
 
     return true;
 }
+
+void module::unInstall()
+{
+    forcePending();
+}

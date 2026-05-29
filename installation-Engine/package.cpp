@@ -45,3 +45,16 @@ bool package::install(transactionContext &tx)
 
     return true;
 }
+
+void package::unInstall()
+{
+    forcePending();
+    for(int i = children.size()-1 ; i >= 0 ; i--){
+        children[i]->decParents();
+
+        if(children[i]->getState() == componentState::INSTALLED &&
+            children[i]->getParentCount() == 0 && !children[i]->getExplicit()){
+                children[i]->unInstall();
+            }
+    }
+}

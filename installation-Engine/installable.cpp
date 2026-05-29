@@ -2,8 +2,9 @@
 
 using namespace std;
 
-installable::installable(string _id_, string _title_) 
-    : id(_id_) , title(_title_) {}
+installable::installable(string _id_, string _title_)
+    : id(_id_), title(_title_), state(componentState::PENDING),
+      mockFail(false), installedParentCount(0), is_explicitly_installed(false) {}
 
     
 string stateToString(componentState state)
@@ -36,4 +37,9 @@ void installable::setState(componentState new_state)
     for(observer* obs : observers){
         obs->onStateChanged(this, old_state, new_state);
     }
+}
+
+void installable::forcePending()
+{
+    setState(componentState::PENDING);
 }

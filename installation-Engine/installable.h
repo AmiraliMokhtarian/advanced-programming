@@ -36,8 +36,9 @@ public:
     void decParents();
     bool getExplicit() const {return is_explicitly_installed;}
     void setExplicit(bool val) {is_explicitly_installed = val;}
-
+    int getParentCount() const {return installedParentCount;}
+    void forcePending();
     virtual bool isPackage() const { return false;}
     virtual bool install(transactionContext& tx) = 0;
-    //virtual void unInstall() = 0;
+    virtual void unInstall() = 0;
 };

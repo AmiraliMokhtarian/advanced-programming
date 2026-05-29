@@ -16,4 +16,5 @@ public:
     void handleAttach(string& line);
     void handleInstall(string& line);
     void handleResolve(string& line);
+    void handleUnInstall(string& line);
 };

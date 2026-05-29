@@ -209,3 +209,52 @@ void InstallationEngine::handleResolve(string &line)
     comp->setMockFail(false);
     comp->setState(componentState::PENDING);
 }
+
+void InstallationEngine::handleUnInstall(string &line)
+{
+    string id = getNextToken(line);
+    if(id.empty()){
+        cout << "ERROR: Invalid command" << endl;
+        return;
+    }
+
+    if (id == "-A"){
+        bool anyInstalled = false;
+
+        for (auto comp : components){
+            if (comp->getState() == componentState::INSTALLED){
+                anyInstalled = true;
+                break;
+            }
+        }
+
+        if (!anyInstalled){
+            cout << "ERROR: No installed components to uninstall" << endl;
+            return;
+        }
+
+        for (int i = components.size() - 1; i >= 0; i--){
+            if (components[i]->getState() == componentState::INSTALLED){
+                    components[i]->unInstall();
+            }
+        }
+        return;
+    }
+
+    installable* comp = getComponent(id);
+    if (!comp) {
+        cout << "ERROR: Component " << id << " does not exist" << endl;
+        return;
+    }
+    if (comp->getState() != componentState::INSTALLED) {
+        cout << "ERROR: Component " << id << " is not currently installed" << endl;
+        return;
+    }
+    if (comp->getParentCount() > 0) {
+        cout << "ERROR: Component " << id << " is required by another package" << endl;
+        return;
+    }
+
+    comp->setExplicit(false);
+    comp->unInstall();
+}

@@ -12,4 +12,5 @@ public:
     void addChild(installable* child);
     bool hasChild(const string& child_id) const;
     bool install(transactionContext& tx) override;
+    void unInstall() override;
 };
