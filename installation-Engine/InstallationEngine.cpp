@@ -4,6 +4,7 @@
 #include "InstallationEngine.h"
 #include "module.h"
 #include "package.h"
+#include "systemLog.h"
 
 
 using namespace std;
@@ -29,10 +30,15 @@ void InstallationEngine::processCommand(){
             }
 
             if(type == "MODULE"){
-                components.push_back(new module(id, title));
+                installable* new_comp = new module(id, title);
+                components.push_back(new_comp);
+                new_comp->addObservers(&logger);
+                
             }
             else if(type == "PACKAGE"){
-                components.push_back(new package(id, title));
+                installable* new_comp = new package(id, title);
+                components.push_back(new_comp);
+                new_comp->addObservers(&logger);
             }
         } 
         
@@ -197,7 +203,7 @@ void InstallationEngine::handleResolve(string &line)
 
     installable* comp = getComponent(id);
     if(!comp){
-        cout << "ERROR: Component " << id << " is already installed" << endl;
+        cout << "ERROR: Component " << id << " does not exist" << endl;
         return; 
     }
 

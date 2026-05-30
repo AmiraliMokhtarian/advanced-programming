@@ -8,7 +8,7 @@ using namespace std;
 class InstallationEngine{
 private:
     vector<installable*> components;
-
+    systemLogger logger;
     installable* getComponent(const string& id);
 public:
     void processCommand();

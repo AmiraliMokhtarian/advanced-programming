@@ -38,6 +38,7 @@ public:
     void setExplicit(bool val) {is_explicitly_installed = val;}
     int getParentCount() const {return installedParentCount;}
     void forcePending();
+    void addObservers(observer* obs);
     virtual bool isPackage() const { return false;}
     virtual bool install(transactionContext& tx) = 0;
     virtual void unInstall() = 0;

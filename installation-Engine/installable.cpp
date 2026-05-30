@@ -43,3 +43,8 @@ void installable::forcePending()
 {
     setState(componentState::PENDING);
 }
+
+void installable::addObservers(observer *obs)
+{
+    observers.push_back(obs);
+}
