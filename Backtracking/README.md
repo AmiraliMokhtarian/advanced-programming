@@ -14,26 +14,10 @@ This project includes solutions for:
 ### 1. Sudoku Solver
 Solves a standard Sudoku puzzle by filling empty cells while respecting all Sudoku constraints.
 
-#### Approach
-The algorithm:
-1. Finds an empty cell
-2. Tries digits from `1` to `9`
-3. Checks whether the placement is valid
-4. Recursively continues
-5. Backtracks if a dead end is reached
-
 ---
 
 ### 2. 8 Queens Problem
 Finds valid arrangements of **8 queens on an 8×8 chessboard** such that no two queens attack each other.
-
-#### Constraints
-- No two queens share the same row
-- No two queens share the same column
-- No two queens share the same diagonal
-
-#### Approach
-The solution places queens row by row, validating each position before proceeding recursively.
 
 ---
 
