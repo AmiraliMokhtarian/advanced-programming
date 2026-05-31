@@ -22,7 +22,7 @@ void InstallationEngine::processCommand(){
         if(cmd == "ADD"){
             string type = getNextToken(line);
             string id = getNextToken(line);
-            string title = getNextToken(line);
+            string title = line;
 
             if(getComponent(id) != nullptr){
                 cout << "ERROR: Component with ID " << id << " already exists";
@@ -80,6 +80,14 @@ void InstallationEngine::processCommand(){
         else if(cmd == "RESOLVE_FAIL"){
             handleResolve(line);
         }
+
+        else if(cmd == "UNINSTALL"){
+            handleUnInstall(line);
+        }
+
+        else{
+            cout << "ERROR: Invalid command" << endl;
+        }
     }
 }
 
@@ -108,14 +116,7 @@ string InstallationEngine::getNextToken(string& line) {
 void InstallationEngine::handleAttach(string& line)
 {
     string parent_id = getNextToken(line);
-    string TO_word = getNextToken(line);
     string child_id = getNextToken(line);
-
-    //priority 1
-    if (child_id.empty() || parent_id.empty()) {
-        cout << "ERROR: Invalid command" << endl;
-        return;
-    }
 
     installable* child = getComponent(child_id);
     installable* parent = getComponent(parent_id);
@@ -159,11 +160,6 @@ void InstallationEngine::handleAttach(string& line)
 void InstallationEngine::handleInstall(string& line)
 {
     string id_installing = getNextToken(line);
-    if(id_installing.empty()){
-        cout << "ERROR: Invalid command" << endl;
-        return;
-    }
-
     installable* installing_comp = getComponent(id_installing);
     if(!installing_comp){
         cout << "ERROR: Component " << id_installing << " does not exist" << endl;
@@ -181,13 +177,24 @@ void InstallationEngine::handleInstall(string& line)
         installing_comp->setExplicit(true);
     }
     
-    else{
-        for (installable* node : tx.stateChangedNodes){
-            if(node->getState() == componentState::INSTALLED) //just pend the installed nodes
-                node->setState(componentState::PENDING); 
+    else
+    {
+        //rollback
+        for(int i = tx.stateChangedNodes.size()-1; i >= 0; --i){
+            installable* node = tx.stateChangedNodes[i];
+
+            if(node->getState() == componentState::INSTALLED)
+                node->setState(componentState::PENDING);
         }
-        for (installable* node : tx.countIncreasedNodes){
-            node->decParents();
+
+        //rollback dependency counts
+        for(int i = tx.countIncreasedNodes.size()-1; i >= 0; --i){
+            tx.countIncreasedNodes[i]->decParents();
+        }
+
+        //fail packages
+        for(installable* p : tx.failedPackages){
+            p->setState(componentState::FAILED);
         }
     }
 }
@@ -196,33 +203,24 @@ void InstallationEngine::handleResolve(string &line)
 {
     string id = getNextToken(line);
 
-    if(id.empty()){
-        cout << "ERROR: Invalid command" << endl;
-        return;
-    }
-
     installable* comp = getComponent(id);
     if(!comp){
         cout << "ERROR: Component " << id << " does not exist" << endl;
         return; 
     }
 
-    if(comp->getState() != componentState::FAILED){
-        cout << "ERROR: Component " << id << " is not in a mock fail state" << endl;
+    if(!comp->isMockFail()){
+        cout << "ERROR: Component " << id
+            << " is not in a mock fail state" << endl;
         return;
     }
 
     comp->setMockFail(false);
-    comp->setState(componentState::PENDING);
 }
 
 void InstallationEngine::handleUnInstall(string &line)
 {
     string id = getNextToken(line);
-    if(id.empty()){
-        cout << "ERROR: Invalid command" << endl;
-        return;
-    }
 
     if (id == "-A"){
         bool anyInstalled = false;

@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "ComponentState.h"
+#include "componentState.h"
 #include "observer.h"
 
 
@@ -9,6 +9,7 @@ struct transactionContext
 {
     vector<installable*> stateChangedNodes;
     vector<installable*> countIncreasedNodes;
+    vector<installable*> failedPackages;
 };
 
 

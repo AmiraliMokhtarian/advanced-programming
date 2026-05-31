@@ -24,7 +24,7 @@ bool package::install(transactionContext &tx)
     if(state == componentState::INSTALLED)
         return true;
 
-    if(isMockFail){
+    if(isMockFail()){
         setState(componentState::FAILED);
         tx.stateChangedNodes.push_back(this);
         return false; 
@@ -33,6 +33,7 @@ bool package::install(transactionContext &tx)
     for(installable* child : children){
         if(child->getState() != componentState::INSTALLED){
             if(!child->install(tx)){
+                tx.failedPackages.push_back(this);
                 return false;
             }
         }

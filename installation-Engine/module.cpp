@@ -11,7 +11,7 @@ bool module::install(transactionContext &tx)
     if(state == componentState::INSTALLED)
         return true;
 
-    if(isMockFail){
+    if(isMockFail()){
         setState(componentState::FAILED);
         tx.stateChangedNodes.push_back(this);
         return false;

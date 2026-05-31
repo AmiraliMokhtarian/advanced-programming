@@ -31,6 +31,9 @@ void installable::decParents()
 
 void installable::setState(componentState new_state)
 {
+    if(state == new_state)
+        return;
+    
     componentState old_state = state;
     state = new_state;
 

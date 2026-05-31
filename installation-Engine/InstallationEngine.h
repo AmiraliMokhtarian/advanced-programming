@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include "installable.h"
-
+#include "systemLog.h"
 using namespace std;
 
 class InstallationEngine{
