@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <algorithm>
 #include <sstream>
 #include "InstallationEngine.h"
 #include "module.h"
@@ -10,10 +11,34 @@
 using namespace std;
 
 
+string trimLeading(const string& str) {
+    size_t first = str.find_first_not_of(" \t\r\n");
+    if (first == string::npos) return ""; 
+    return str.substr(first);
+}
+
+string InstallationEngine::getNextToken(string& str) {
+    str = trimLeading(str);
+    if (str.empty()) return "";
+    
+    size_t space_pos = str.find_first_of(" \t\r\n");
+    if (space_pos == string::npos) { 
+        string token = str;
+        str = "";
+        return token;
+    }
+    
+    string token = str.substr(0, space_pos);
+    str = str.substr(space_pos);
+    return token;
+}
+
+
 void InstallationEngine::processCommand(){
     string line;
     while(getline(cin, line)){
-
+        if (!line.empty() && line.back() == '\n') line.pop_back();
+        if (!line.empty() && line.back() == '\r') line.pop_back();
         if(line == "END") break;
         if(line.empty()) continue;
         
@@ -22,10 +47,10 @@ void InstallationEngine::processCommand(){
         if(cmd == "ADD"){
             string type = getNextToken(line);
             string id = getNextToken(line);
-            string title = line;
+            string title = trimLeading(line);
 
             if(getComponent(id) != nullptr){
-                cout << "ERROR: Component with ID " << id << " already exists";
+                cout << "ERROR: Component with ID " << id << " already exists" << endl;
                 continue;
             }
 
@@ -39,6 +64,9 @@ void InstallationEngine::processCommand(){
                 installable* new_comp = new package(id, title);
                 components.push_back(new_comp);
                 new_comp->addObservers(&logger);
+            }
+            else{
+                cout << "ERROR: Invalid command" << endl;
             }
         } 
         
@@ -100,18 +128,6 @@ installable* InstallationEngine::getComponent(const string& id){
     return nullptr;
 }
 
-string InstallationEngine::getNextToken(string& line) {
-    size_t pos = line.find(' ');
-    if (pos == string::npos) { 
-        string temp = line;
-        line = "";
-        return temp;
-    }
-    string token = line.substr(0, pos);
-    line.erase(0, pos + 1); 
-    return token;
-}
-
 
 void InstallationEngine::handleAttach(string& line)
 {
@@ -123,11 +139,11 @@ void InstallationEngine::handleAttach(string& line)
 
     //priority 2
     if(parent == nullptr){
-        cout << "ERROR: Component with ID " << parent_id << " does not exist" << endl;
+        cout << "ERROR: Component " << parent_id << " does not exist" << endl;
         return;
     }
     if(child == nullptr){
-        cout << "ERROR: Component with ID " << child_id << " does not exist" << endl;
+        cout << "ERROR: Component " << child_id << " does not exist" << endl;
         return;
     }
 
@@ -138,13 +154,10 @@ void InstallationEngine::handleAttach(string& line)
     }
 
     //priority 4
-    for (installable* comp : components) {
-        if (comp->isPackage()) {
-            if (((package*)comp)->hasChild(child_id)) { 
-                cout << "ERROR: Component " << child_id << " is already attached to " << comp->getId() << endl;
-                return;
-            }
-        }
+    package* pkg = (package*)parent;
+    if (pkg->hasChild(child_id)) { 
+        cout << "ERROR: Component " << child_id << " is already attached to " << parent_id << endl;
+        return;
     }
 
     //priority 5
@@ -177,9 +190,9 @@ void InstallationEngine::handleInstall(string& line)
         installing_comp->setExplicit(true);
     }
     
-    else
-    {
-        //rollback
+    else{
+        
+        // rollback وضعیت نودها
         for(int i = tx.stateChangedNodes.size()-1; i >= 0; --i){
             installable* node = tx.stateChangedNodes[i];
 
@@ -187,14 +200,14 @@ void InstallationEngine::handleInstall(string& line)
                 node->setState(componentState::PENDING);
         }
 
-        //rollback dependency counts
-        for(int i = tx.countIncreasedNodes.size()-1; i >= 0; --i){
-            tx.countIncreasedNodes[i]->decParents();
-        }
-
-        //fail packages
+        // fail packages
         for(installable* p : tx.failedPackages){
             p->setState(componentState::FAILED);
+        }
+
+        // rollback dependency counts
+        for(int i = tx.countIncreasedNodes.size()-1; i >= 0; --i){
+            tx.countIncreasedNodes[i]->decParents();
         }
     }
 }
@@ -239,7 +252,7 @@ void InstallationEngine::handleUnInstall(string &line)
 
         for (int i = components.size() - 1; i >= 0; i--){
             if (components[i]->getState() == componentState::INSTALLED){
-                    components[i]->unInstall();
+                    components[i]->setState(componentState::PENDING);
             }
         }
         return;
