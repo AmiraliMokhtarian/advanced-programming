@@ -11,8 +11,8 @@ private:
     systemLogger logger;
     installable* getComponent(const string& id);
 public:
+    ~InstallationEngine();
     void processCommand();
-    string getNextToken(string& id);
     void handleAttach(string& line);
     void handleInstall(string& line);
     void handleResolve(string& line);

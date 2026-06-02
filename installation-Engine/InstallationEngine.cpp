@@ -17,7 +17,7 @@ string trimLeading(const string& str) {
     return str.substr(first);
 }
 
-string InstallationEngine::getNextToken(string& str) {
+string getNextToken(string& str) {
     str = trimLeading(str);
     if (str.empty()) return "";
     
@@ -31,6 +31,13 @@ string InstallationEngine::getNextToken(string& str) {
     string token = str.substr(0, space_pos);
     str = str.substr(space_pos);
     return token;
+}
+
+InstallationEngine::~InstallationEngine()
+{
+    for (installable* comp : components) {
+        delete comp; 
+    }
 }
 
 
@@ -190,26 +197,7 @@ void InstallationEngine::handleInstall(string& line)
         installing_comp->setExplicit(true);
     }
     
-    else{
-        
-        // rollback وضعیت نودها
-        for(int i = tx.stateChangedNodes.size()-1; i >= 0; --i){
-            installable* node = tx.stateChangedNodes[i];
-
-            if(node->getState() == componentState::INSTALLED)
-                node->setState(componentState::PENDING);
-        }
-
-        // fail packages
-        for(installable* p : tx.failedPackages){
-            p->setState(componentState::FAILED);
-        }
-
-        // rollback dependency counts
-        for(int i = tx.countIncreasedNodes.size()-1; i >= 0; --i){
-            tx.countIncreasedNodes[i]->decParents();
-        }
-    }
+    //rollback is done in package::install --> there's no "else"
 }
 
 void InstallationEngine::handleResolve(string &line)
@@ -236,23 +224,31 @@ void InstallationEngine::handleUnInstall(string &line)
     string id = getNextToken(line);
 
     if (id == "-A"){
-        bool anyInstalled = false;
+        bool any_active = false;
 
         for (auto comp : components){
-            if (comp->getState() == componentState::INSTALLED){
-                anyInstalled = true;
+            if (comp->getState() == componentState::INSTALLED 
+                || comp->getState() == componentState::FAILED){
+                any_active = true;
                 break;
             }
         }
 
-        if (!anyInstalled){
+        if (!any_active){
             cout << "ERROR: No installed components to uninstall" << endl;
             return;
         }
 
         for (int i = components.size() - 1; i >= 0; i--){
-            if (components[i]->getState() == componentState::INSTALLED){
-                    components[i]->setState(componentState::PENDING);
+            componentState s = components[i]->getState();
+            if (s == componentState::INSTALLED || s == componentState::FAILED){
+                components[i]->forcePending();
+
+                while (components[i]->getParentCount() > 0)
+                    components[i]->decParents();
+
+                components[i]->setExplicit(false);
+                components[i]->setMockFail(false);
             }
         }
         return;

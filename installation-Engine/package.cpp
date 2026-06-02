@@ -30,10 +30,28 @@ bool package::install(transactionContext &tx)
         return false; 
     }
 
+    int start_state = (int)tx.stateChangedNodes.size();
+    int start_count = (int)tx.countIncreasedNodes.size();
+
     for(installable* child : children){
         if(child->getState() != componentState::INSTALLED){
             if(!child->install(tx)){
-                tx.failedPackages.push_back(this);
+                // undo state changes since we started(LIFO)
+                for(int i = (int)tx.stateChangedNodes.size() - 1; i >= start_state; i--){
+                    if(tx.stateChangedNodes[i]->getState() == componentState::INSTALLED)
+                        tx.stateChangedNodes[i]->setState(componentState::PENDING);
+                }
+                tx.stateChangedNodes.erase(tx.stateChangedNodes.begin() + start_state,
+                                            tx.stateChangedNodes.end());
+
+                // undo the dependency counts added since we started (LIFO ).
+                for(int i = (int)tx.countIncreasedNodes.size() - 1; i >= start_count; i--){
+                    tx.countIncreasedNodes[i]->decParents();
+                }
+                tx.countIncreasedNodes.erase(tx.countIncreasedNodes.begin() + start_count,
+                                                tx.countIncreasedNodes.end());
+
+                setState(componentState::FAILED);
                 return false;
             }
         }
