@@ -1,0 +1,6 @@
+installation-Engine/in/
+installation-Engine/out/
+*.txt
+*.d
+*.o
+installer

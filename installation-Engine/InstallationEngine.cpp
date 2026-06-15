@@ -46,6 +46,7 @@ void InstallationEngine::processCommand(){
     while(getline(cin, line)){
         if (!line.empty() && line.back() == '\n') line.pop_back();
         if (!line.empty() && line.back() == '\r') line.pop_back();
+        
         if(line == "END") break;
         if(line.empty()) continue;
         
