@@ -1,0 +1,86 @@
+#include <iostream>
+#include <iomanip>
+#include <sstream>
+#include "UIRender.h"
+
+using namespace std;
+
+const string UIRender::RESET  = "\033[0m";
+const string UIRender::BOLD   = "\033[1m";
+const string UIRender::CYAN   = "\033[36m";
+const string UIRender::GREEN  = "\033[32m";
+const string UIRender::YELLOW = "\033[33m";
+const string UIRender::WHITE  = "\033[37m";
+
+
+void UIRender::clearScreen()
+{
+    cout << "\033[2J\033[1;1H";
+}
+
+void UIRender::printTopBorder(const string &title, int width)
+{
+    cout << "╔" << string(width - 2, '═') << "╗" << endl;
+    //centered title
+    int pad  = (width - 2 - (int)title.size()) / 2;
+    int rpad = width - 2 - pad - (int)title.size();
+    cout << "║" << string(pad, ' ') << title << string(rpad, ' ') << "║" << endl;
+}
+
+void UIRender::printSection(const vector<string> &rows, int width)
+{
+    cout << "╠" << string(width - 2, '═') << "╣" << endl;
+    for (const string& text : rows) {
+        string row = " " + text;
+        //count only non-escape characters
+        int visibleLen = 0;
+        bool inEscape  = false;
+        for (char c : row) {
+            if (c == '\033') { inEscape = true; continue; }
+            if (inEscape)    { if (c == 'm') inEscape = false; continue; }
+            visibleLen++;
+        }
+        int rpad = width - 2 - visibleLen;
+        if (rpad < 0) rpad = 0;
+        cout << "║" << row << string(rpad, ' ') << "║" << endl;
+    }    
+}
+
+void UIRender::printBottomBorder(int width)
+{
+    cout << "╚" << string(width - 2, '═') << "╝" << endl;
+}
+
+void UIRender::printSongRow(int index, const song* s, int width, bool active) 
+{
+    string marker = active ? "▶ " : "  ";
+    string title  = s->getTitle();
+    string artist = s->getArtist();
+    string dur    = formatDuration(s->getDuration());
+
+    if ((int)title.size()  > 22) title  = title.substr(0, 19)  + "...";
+    if ((int)artist.size() > 14) artist = artist.substr(0, 11) + "...";
+
+    ostringstream oss;
+    oss << left
+        << setw(3)  << index
+        << marker
+        << setw(24) << title
+        << setw(16) << artist
+        << right    << dur;
+
+    string row = " " + oss.str();
+    if ((int)row.size() > width - 2) 
+        row = row.substr(0, width - 2);
+    row += string(width - 2 - (int)row.size(), ' ');
+    cout << "║" << row << "║" << endl;
+}
+
+string UIRender::formatDuration(int seconds)
+{
+    ostringstream oss;
+    oss << setfill('0')
+        << setw(2) << seconds / 60 << ":"
+        << setw(2) << seconds % 60;
+    return oss.str();
+}

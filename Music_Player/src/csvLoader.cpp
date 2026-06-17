@@ -3,6 +3,7 @@
 #include "song.h"
 #include <iostream>
 #include <sstream>
+#include <exception>
 #include <fstream>
 #include <string>
 
@@ -32,16 +33,22 @@ void CsvLoader::load(const string& path, MusicLibrary& library)
         getline(ss, duration, ',');
         getline(ss, file_path);
 
-        song* s = new song(
-            title,
-            artist,
-            album,
-            genre,
-            stoi(year),
-            stoi(duration),
-            file_path
-        );
-
-        library.addSong(s);
+        try {
+            song* s = new song(
+                title, artist, album, genre,
+                stoi(year),
+                stoi(duration),
+                file_path
+            );
+            library.addSong(s);
+        } catch(const exception& e)
+        {
+            cerr
+                << "Skipping bad row: "
+                << line
+                << "\nReason: "
+                << e.what()
+                << endl;
+        }
     }
 }
