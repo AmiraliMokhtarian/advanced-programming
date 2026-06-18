@@ -12,5 +12,7 @@ private:
 public:
     configManager(const string& path);
     void set(const string& key, const string& value);
-    string get(const string& key) const;
+    void load();
+    void save();
+    string get(const string& key, const string& defaultValue = "") const;
 };

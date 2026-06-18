@@ -13,9 +13,10 @@ private:
     playerState state;
     playbackMode mode;
 public:
-    //player();
-    //~player();
+    player();
+    ~player();
     song* getCurrentSong() const;
     playerState getState() const;
     playbackMode getMode() const;
+    string getStateString() const;
 };
