@@ -19,4 +19,15 @@ public:
     playerState getState() const;
     playbackMode getMode() const;
     string getStateString() const;
+    string getModeString() const;
+
+    void play(song* song);
+    void pause();
+    void resume();
+    void stop();
+    void next();
+    void previous();
+    void togglePause();
+
+    void setCurrentSong(song* s);
 };

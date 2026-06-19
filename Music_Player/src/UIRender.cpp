@@ -46,6 +46,11 @@ void UIRender::printSection(const vector<string> &rows, int width)
     }    
 }
 
+void UIRender::printSeparator(int width) 
+{
+    cout << "╠" << string(width - 2, '═') << "╣\n";
+}
+
 void UIRender::printBottomBorder(int width)
 {
     cout << "╚" << string(width - 2, '═') << "╝" << endl;

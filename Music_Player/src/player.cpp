@@ -47,3 +47,45 @@ string player::getModeString() const
     }
     return "";
 }
+
+void player::play(song* song)
+{
+    currentSong = song;
+    state = PLAYING;
+}
+
+void player::pause()
+{
+    state = PAUSED;
+}
+
+void player::resume()
+{
+    state = PLAYING;
+}
+
+void player::stop()
+{
+    state = STOPPED;
+}
+
+void player::togglePause()
+{
+    if(state == PLAYING)
+        pause();
+    else if(state == PAUSED)
+        resume();
+}
+
+void player::next()
+{
+}
+
+void player::previous()
+{
+}
+
+void player::setCurrentSong(song* s)
+{
+    currentSong = s;
+}
