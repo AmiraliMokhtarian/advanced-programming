@@ -12,15 +12,21 @@ const string UIRender::GREEN  = "\033[32m";
 const string UIRender::YELLOW = "\033[33m";
 const string UIRender::WHITE  = "\033[37m";
 
+//helper function for printing =
+static string repeatUtf8(const string& ch, int count) {
+    string result;
+    for (int i = 0; i < count; i++) result += ch;
+    return result;
+}
 
 void UIRender::clearScreen()
 {
-    cout << "\033[2J\033[1;1H";
+    cout << "\033[2J\033[1;1H" << flush;
 }
 
 void UIRender::printTopBorder(const string &title, int width)
 {
-    cout << "╔" << string(width - 2, '═') << "╗" << endl;
+    cout << "╔" << repeatUtf8("═", width - 2) << "╗" << endl;
     //centered title
     int pad  = (width - 2 - (int)title.size()) / 2;
     int rpad = width - 2 - pad - (int)title.size();
@@ -29,7 +35,7 @@ void UIRender::printTopBorder(const string &title, int width)
 
 void UIRender::printSection(const vector<string> &rows, int width)
 {
-    cout << "╠" << string(width - 2, '═') << "╣" << endl;
+    cout << "╠" << repeatUtf8("═", width - 2) << "╣" << endl;
     for (const string& text : rows) {
         string row = " " + text;
         //count only non-escape characters
@@ -48,12 +54,12 @@ void UIRender::printSection(const vector<string> &rows, int width)
 
 void UIRender::printSeparator(int width) 
 {
-    cout << "╠" << string(width - 2, '═') << "╣\n";
+    cout << "╠" << repeatUtf8("═", width - 2) << "╣\n";
 }
 
 void UIRender::printBottomBorder(int width)
 {
-    cout << "╚" << string(width - 2, '═') << "╝" << endl;
+    cout << "╚" << repeatUtf8("═", width - 2) << "╝" << endl;
 }
 
 void UIRender::printSongRow(int index, const song* s, int width, bool active) 

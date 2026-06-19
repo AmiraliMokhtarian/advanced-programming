@@ -188,7 +188,7 @@ void BrowsePlaylistScreen::handleInput()
 
         vector<string> rows;
 
-        for (int i=0;i<values.size();i++)
+        for (int i=0; i < int(values.size()); i++)
             rows.push_back(to_string(i+1)+". "+values[i]);
 
         ui.printSection(rows);

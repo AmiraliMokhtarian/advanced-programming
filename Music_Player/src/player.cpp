@@ -45,8 +45,7 @@ void player::loadAndPlay(int index)
         0, NULL, NULL, &sound_
     );
     if (r != MA_SUCCESS) {
-        state = STOPPED;
-        return; //bad file
+        state = STOPPED; return;
     }
 
     soundLoaded_ = true;
