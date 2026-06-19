@@ -201,11 +201,19 @@ void BrowsePlaylistScreen::handleInput()
     }
  
     else if (isdigit(key) && key != '0') {
-        int max   = (int)displayList.size();
+        int max = (int)displayList.size();
         if (max == 0) return;
         int index = input.readInt(1, max) - 1;
-        player_.setCurrentSong(displayList[index]);
-        config.set("active_playlist", playlists[activePlaylistIndex]->getName());
-        currentScreen = 1;
+
+        playlist* pl = playlists[activePlaylistIndex];
+        auto& origSongs = pl->getSongs();
+        auto it = find(origSongs.begin(), origSongs.end(), displayList[index]);
+
+        if (it != origSongs.end()) {
+            int realIndex = (int)(it - origSongs.begin());
+            player_.loadPlaylist(pl, realIndex);
+            config.set("active_playlist", pl->getName());
+            currentScreen = 1;
+        }
     }
 }
