@@ -30,4 +30,5 @@ public:
     void togglePause();
 
     void setCurrentSong(song* s);
+    void setMode(playbackMode m);
 };

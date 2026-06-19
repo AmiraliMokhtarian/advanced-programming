@@ -9,6 +9,8 @@
 using namespace std;
 
 enum SortMode { SORT_DEFAULT, SORT_TITLE, SORT_ARTIST, SORT_ALBUM, SORT_YEAR, SORT_DURATION };
+enum class FilterType { None, Artist, Album };
+
 
 class BrowsePlaylistScreen : public Screen {
 private:
@@ -21,7 +23,8 @@ private:
     SortMode           sortMode;
     string             searchQuery;
     vector<song*>      displayList; //never touches original
-
+    FilterType filterType = FilterType::None;
+    string filterValue;
     void rebuildDisplayList();
     string sortModeString() const;
 
