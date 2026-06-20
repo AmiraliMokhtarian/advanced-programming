@@ -27,9 +27,19 @@ void UIRender::clearScreen()
 void UIRender::printTopBorder(const string &title, int width)
 {
     cout << "╔" << repeatUtf8("═", width - 2) << "╗" << endl;
-    //centered title
-    int pad  = (width - 2 - (int)title.size()) / 2;
-    int rpad = width - 2 - pad - (int)title.size();
+
+    int visibleLen = 0;
+    bool inEscape = false;
+    for (size_t i = 0; i < title.size(); i++) {
+        unsigned char c = title[i];
+        if (c == '\033') { inEscape = true; continue; }
+        if (inEscape)    { if (c == 'm') inEscape = false; continue; }
+        if ((c & 0xC0) == 0x80) continue;
+        visibleLen++;
+    }
+
+    int pad  = (width - 2 - visibleLen) / 2;
+    int rpad = width - 2 - pad - visibleLen;
     cout << "║" << string(pad, ' ') << title << string(rpad, ' ') << "║" << endl;
 }
 
@@ -38,18 +48,26 @@ void UIRender::printSection(const vector<string> &rows, int width)
     cout << "╠" << repeatUtf8("═", width - 2) << "╣" << endl;
     for (const string& text : rows) {
         string row = " " + text;
-        //count only non-escape characters
+
         int visibleLen = 0;
-        bool inEscape  = false;
-        for (char c : row) {
+        bool inEscape   = false;
+        for (size_t i = 0; i < row.size(); i++) {
+            unsigned char c = row[i];
+
             if (c == '\033') { inEscape = true; continue; }
             if (inEscape)    { if (c == 'm') inEscape = false; continue; }
+
+            // skip UTF-8 continuation bytes (10xxxxxx) — they're part of
+            // the previous character, not new visible characters
+            if ((c & 0xC0) == 0x80) continue;
+
             visibleLen++;
         }
+
         int rpad = width - 2 - visibleLen;
         if (rpad < 0) rpad = 0;
         cout << "║" << row << string(rpad, ' ') << "║" << endl;
-    }    
+    }
 }
 
 void UIRender::printSeparator(int width) 
@@ -64,7 +82,7 @@ void UIRender::printBottomBorder(int width)
 
 void UIRender::printSongRow(int index, const song* s, int width, bool active) 
 {
-    string marker = active ? "▶ " : "  ";
+    string marker = active ? " ▶" : "  ";
     string title  = s->getTitle();
     string artist = s->getArtist();
     string dur    = formatDuration(s->getDuration());
@@ -81,10 +99,17 @@ void UIRender::printSongRow(int index, const song* s, int width, bool active)
         << right    << dur;
 
     string row = " " + oss.str();
-    if ((int)row.size() > width - 2) 
-        row = row.substr(0, width - 2);
-    row += string(width - 2 - (int)row.size(), ' ');
-    cout << "║" << row << "║" << endl;
+
+    int visLen = 0;
+    for (unsigned char c : row) {
+        if ((c & 0xC0) == 0x80) continue;
+        visLen++;
+    }
+
+    int rpad = width - 2 - visLen;
+    if (rpad < 0) rpad = 0;
+
+    cout << "║" << row << string(rpad, ' ') << "║" << endl;
 }
 
 string UIRender::formatDuration(int seconds)

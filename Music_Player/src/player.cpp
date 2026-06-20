@@ -1,6 +1,7 @@
 #define MINIAUDIO_IMPLEMENTATION
 #include "miniaudio.h"
 #include "player.h"
+#include <iostream>
 #include <stdexcept>
 #include <cstdlib>
 #include <ctime>
@@ -17,7 +18,8 @@ player::player()
 {
     if (ma_engine_init(NULL, &engine_) != MA_SUCCESS)
         throw runtime_error("Failed to initialize audio engine");
-    srand((unsigned)time(nullptr)); //for SHUFFLE   
+
+    srand((unsigned)time(nullptr));
 }
 
 

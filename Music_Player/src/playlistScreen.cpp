@@ -27,7 +27,7 @@ void playlistScreen::render() {
 
             ostringstream oss;
 
-            string marker = (i == activePlaylistIndex) ? "▶ " : "  ";
+            string marker = (i == activePlaylistIndex) ? " ▶ " : "  ";
 
             oss << " "
                 << left

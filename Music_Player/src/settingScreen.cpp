@@ -11,18 +11,18 @@ void settingScreen::render()
     string current = player_.getModeString();
 
     ui.clearScreen();
-    ui.printTopBorder("⚙ Settings", 56);
+    ui.printTopBorder("⚙  Settings ", 56);
     ui.printSection({ "Playback Mode (current: " + current + ")" });
 
     ui.printSection({
         "1. NO_REPEAT    play in order, stop at end"
-            + string(player_.getMode() == NO_REPEAT  ? "  ◀ active" : ""),
+            + string(player_.getMode() == NO_REPEAT  ? "  ◀ active " : ""),
         "2. REPEAT_ONE   repeat current song forever"
-            + string(player_.getMode() == REPEAT_ONE ? "  ◀ active" : ""),
+            + string(player_.getMode() == REPEAT_ONE ? "  ◀ active " : ""),
         "3. REPEAT_ALL   loop whole playlist"
-            + string(player_.getMode() == REPEAT_ALL ? "  ◀ active" : ""),
+            + string(player_.getMode() == REPEAT_ALL ? "  ◀ active " : ""),
         "4. SHUFFLE      random order"
-            + string(player_.getMode() == SHUFFLE    ? "  ◀ active" : "")
+            + string(player_.getMode() == SHUFFLE    ? "  ◀ active " : "")
     });
 
     ui.printSection({ "0. Back (changes saved automatically)" });

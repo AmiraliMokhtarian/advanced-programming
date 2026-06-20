@@ -8,18 +8,21 @@ MainMenuScreen::MainMenuScreen(UIRender &ui, InputHandler &input,
 
 void MainMenuScreen::render()
 {
-    string lastSong = config.get("last_song", "None");
+    string lastSong = config.get("last_song_title", "None");
 
     ui.clearScreen();
-    ui.printTopBorder("Terminal Music Player", 56);
-    ui.printSection({ "Last played: " + lastSong });
+    ui.printTopBorder(UIRender::BOLD + UIRender::CYAN + "Terminal Music Player" + UIRender::RESET, 56);
     ui.printSection({
-        "1. Now Playing",
-        "2. Playlists",
-        "3. Browse Playlist",
-        "4. Settings"
+        UIRender::YELLOW + string("Last played: ") + UIRender::WHITE + lastSong + UIRender::RESET 
     });
-    ui.printSection({ "0. Quit (saves state)" });
+
+    ui.printSection({
+        UIRender::GREEN + string("1. Now Playing") + UIRender::RESET,
+        UIRender::GREEN + string("2. Playlists") + UIRender::RESET,
+        UIRender::GREEN + string("3. Browse Playlist") + UIRender::RESET,
+        UIRender::GREEN + string("4. Settings") + UIRender::RESET
+    });
+    ui.printSection({ UIRender::YELLOW + string("0. Quit (saves state)") + UIRender::RESET});
     ui.printBottomBorder();
 }
 

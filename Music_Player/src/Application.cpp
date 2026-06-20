@@ -33,7 +33,6 @@ void Application::init() {
         playlists = m3u.loadAll("../Data/Playlists", library);
     } catch (const exception& e) {
         cerr << "Warning: could not load playlists: " << e.what() << "\n";
-        // not fatal — app can still run with no playlists
     }
 }
 
@@ -61,7 +60,6 @@ void Application::run() {
 
     //save state on quit
     if (player_.getCurrentSong()) {
-        config.set("last_song", player_.getCurrentSong()->getFilePath());
         config.set("last_song_title", player_.getCurrentSong()->getTitle());
     }
     config.set("playback_mode", player_.getModeString());

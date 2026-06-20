@@ -26,7 +26,7 @@ void NowPlayingScreen::render()
         });
 
         ostringstream line1, line2;
-        line1 << left << setw(30) << ("Mode : " + player_.getStateString())
+        line1 << left << setw(30) << player_.getStateString()
                     << "Playlist: " + config.get("active_playlist", "None");
         line2 << left << setw(30) << ("Mode   : " + player_.getModeString())
                     << "Duration: " + ui.formatDuration(s->getDuration());

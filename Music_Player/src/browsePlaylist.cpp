@@ -1,6 +1,7 @@
 #include "browsePlaylist.h"
 #include <algorithm>
 #include <cctype>
+#include <iostream>
 
 using namespace std;
 
@@ -121,7 +122,7 @@ void BrowsePlaylistScreen::render()
     }
 
     ui.printSection({
-        " [num] play   [s] sort   [f] filter   [/] search   /n [0] back"
+        " [num] play   [s] sort   [f] filter   [/] search " , " [0] back"
     });
     ui.printBottomBorder();
     cout << " Choice: ";
