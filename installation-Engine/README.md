@@ -64,6 +64,3 @@ The logger listens to component state changes and prints state transition messag
 
 ### 4. Transaction-style Installation
 During installation, state changes and parent-count changes are tracked so the process can remain controlled and consistent.
-
-├── observer.h
-└── componentState.h
