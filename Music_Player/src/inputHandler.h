@@ -10,4 +10,6 @@ public:
     int readInt(int min, int max); //checking validation
     
     char readKey();
+
+    bool keyAvailable();
 };

@@ -1,6 +1,7 @@
 #include "inputHandler.h"
 #include <iostream>
 #include <limits>
+#include <conio.h>
 
 using namespace std;
 
@@ -31,4 +32,9 @@ char InputHandler::readKey()
     char c;
     cin.get(c);
     return c;
+}
+
+bool InputHandler::keyAvailable()
+{
+    return _kbhit() != 0;
 }

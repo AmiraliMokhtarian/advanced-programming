@@ -8,6 +8,10 @@
 
 using namespace std;
 
+#ifdef SORT_DEFAULT
+#undef SORT_DEFAULT
+#endif
+
 enum SortMode { SORT_DEFAULT, SORT_TITLE, SORT_ARTIST, SORT_ALBUM, SORT_YEAR, SORT_DURATION };
 enum class FilterType { None, Artist, Album };
 

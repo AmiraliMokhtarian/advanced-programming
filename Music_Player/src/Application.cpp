@@ -1,6 +1,7 @@
 #include "Application.h"
 #include "csvLoader.h"
 #include "m3uLoader.h"
+#include "winConsole.h"
 #include <iostream>
 using namespace std;
 
@@ -49,17 +50,40 @@ Screen* Application::getCurrentScreen() {
 
 void Application::run() {
     init();
-    if (!running) return;  // init failed
+    if (!running) return;
+
+    song* lastRenderedSong = nullptr;
+    int lastRenderedScreen = -1;
 
     while (running) {
         player_.tick();
         Screen* screen = getCurrentScreen();
-        screen->render();
-        screen->handleInput();
+
+        bool screenChanged = (currentScreen != lastRenderedScreen);
+        bool songChanged   = (currentScreen == 1 &&
+                            player_.getCurrentSong() != lastRenderedSong);
+
+        if (screenChanged || songChanged) {
+            screen->render();
+            lastRenderedSong   = player_.getCurrentSong();
+            lastRenderedScreen = currentScreen;
+        }
+
+        if (currentScreen == 1) {
+            if (input.keyAvailable()) {
+                screen->handleInput();
+                lastRenderedScreen = -1;  // force re-render next iteration
+            }
+            platformSleep(100);
+        } 
+        else {
+            screen->handleInput();
+            lastRenderedScreen = -1;  // force re-render after any input
+        }
     }
 
-    //save state on quit
     if (player_.getCurrentSong()) {
+        config.set("last_song", player_.getCurrentSong()->getFilePath());
         config.set("last_song_title", player_.getCurrentSong()->getTitle());
     }
     config.set("playback_mode", player_.getModeString());

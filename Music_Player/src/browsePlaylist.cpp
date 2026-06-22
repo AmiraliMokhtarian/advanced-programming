@@ -65,7 +65,7 @@ void BrowsePlaylistScreen::rebuildDisplayList()
     }
 
     //sort
-    if(!searchQuery.empty()){
+    //if(!searchQuery.empty()){
         switch (sortMode) {
             case SORT_TITLE:
                 sort(displayList.begin(), displayList.end(),
@@ -93,7 +93,7 @@ void BrowsePlaylistScreen::rebuildDisplayList()
                 break;
             default: break;
         }
-    }   
+    //}   
 }
 
 
@@ -204,7 +204,9 @@ void BrowsePlaylistScreen::handleInput()
     else if (isdigit(key) && key != '0') {
         int max = (int)displayList.size();
         if (max == 0) return;
-        int index = input.readInt(1, max) - 1;
+
+        int index = (key - '0') - 1; //ASCII code -> gives int of key
+        if (index < 0 || index >= max) return;
 
         playlist* pl = playlists[activePlaylistIndex];
         auto& origSongs = pl->getSongs();

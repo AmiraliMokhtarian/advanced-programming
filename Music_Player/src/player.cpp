@@ -44,7 +44,8 @@ void player::loadAndPlay(int index)
 
     ma_result r = ma_sound_init_from_file(
         &engine_, currentSong->getFilePath().c_str(),
-        0, NULL, NULL, &sound_
+        MA_SOUND_FLAG_DECODE,
+        NULL, NULL, &sound_
     );
     if (r != MA_SUCCESS) {
         state = STOPPED; return;
@@ -154,8 +155,20 @@ void player::seekBy(int seconds)
 
 void player::tick()
 {
-    if (state != PLAYING || !soundLoaded_) return;
-    if (ma_sound_at_end(&sound_)) next();
+    if (!soundLoaded_) return;
+    if (state != PLAYING) return;
+
+    if (ma_sound_at_end(&sound_)) {
+        next();
+        return;
+    }
+
+    if (currentSong && currentSong->getDuration() > 0) {
+        float cursor   = getCursorSec();
+        float duration = (float)currentSong->getDuration();
+        if (cursor > 0 && cursor >= duration - 0.5f)
+            next();
+    }
 }
 
 void player::setCurrentSong(song* s) { currentSong = s; }

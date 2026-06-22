@@ -9,6 +9,13 @@ void enableWindowsConsole() {
     GetConsoleMode(hOut, &mode);
     SetConsoleMode(hOut, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
 }
+
+void platformSleep(int ms) 
+{
+#ifdef _WIN32
+    Sleep(ms);
+#endif
+}
 #else
 void enableWindowsConsole() {}
 #endif
