@@ -171,7 +171,6 @@ void player::tick()
     }
 }
 
-void player::setCurrentSong(song* s) { currentSong = s; }
 void player::setMode(playbackMode m) { mode = m; }
 
 song* player::getCurrentSong() const { return currentSong; }

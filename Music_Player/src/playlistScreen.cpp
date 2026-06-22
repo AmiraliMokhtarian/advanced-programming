@@ -13,21 +13,21 @@ playlistScreen::playlistScreen(UIRender& ui, InputHandler& input,
 void playlistScreen::render() {
 
     ui.clearScreen();
-    ui.printTopBorder("Playlists", 56);
+    ui.printTopBorder(UIRender::MAGENTA + "Playlists" + UIRender::RESET, 56);
 
     if (playlists.empty()){
-        ui.printSection({ "No playlists found." });
+        ui.printSection({ UIRender::RED + "No playlists found." + UIRender::RESET });
     } 
     
     else{
         vector<string> rows;
-        rows.push_back(" #   Name                           Songs");
+        rows.push_back( UIRender::RED + " #   Name                           Songs" + UIRender::RESET );
 
         for (int i = 0; i < (int)playlists.size(); i++) {
 
             ostringstream oss;
 
-            string marker = (i == activePlaylistIndex) ? " ▶ " : "  ";
+            string marker = (i == activePlaylistIndex) ? UIRender::GRAY + " ▶ " + UIRender::RESET : "  ";
 
             oss << " "
                 << left
@@ -43,7 +43,7 @@ void playlistScreen::render() {
         ui.printSection(rows);
     }
 
-    ui.printSection({ " Enter number to switch active playlist.  [0] back" });
+    ui.printSection({ UIRender::GRAY + " Enter number to switch active playlist" , " [0] back" + UIRender::RESET});
     ui.printBottomBorder();
     cout << " Choice: ";
 }

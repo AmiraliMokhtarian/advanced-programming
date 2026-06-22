@@ -11,6 +11,9 @@ const string UIRender::CYAN   = "\033[36m";
 const string UIRender::GREEN  = "\033[32m";
 const string UIRender::YELLOW = "\033[33m";
 const string UIRender::WHITE  = "\033[37m";
+const string UIRender::GRAY    = "\033[90m";
+const string UIRender::MAGENTA = "\033[35m";
+const string UIRender::RED     = "\033[31m";
 
 //helper function for printing =
 static string repeatUtf8(const string& ch, int count) {

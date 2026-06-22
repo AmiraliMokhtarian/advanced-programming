@@ -90,5 +90,5 @@ void Application::run() {
     config.save();
 
     ui.clearScreen();
-    cout << "Goodbye!\n";
+    cout << UIRender::RED << "Goodbye!" << UIRender::RESET << endl;
 }

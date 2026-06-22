@@ -33,7 +33,6 @@ public:
     float getCursorSec() const;
 
     void setMode(playbackMode m);
-    void setCurrentSong(song* s);
 
     void play();
     void pause();

@@ -65,35 +65,33 @@ void BrowsePlaylistScreen::rebuildDisplayList()
     }
 
     //sort
-    //if(!searchQuery.empty()){
-        switch (sortMode) {
-            case SORT_TITLE:
-                sort(displayList.begin(), displayList.end(),
-                    [](song* a, song* b){ return a->getTitle() < b->getTitle(); });
-                break;
+    switch (sortMode) {
+        case SORT_TITLE:
+            sort(displayList.begin(), displayList.end(),
+                [](song* a, song* b){ return a->getTitle() < b->getTitle(); });
+            break;
 
-            case SORT_ARTIST:
-                sort(displayList.begin(), displayList.end(),
-                    [](song* a, song* b){ return a->getArtist() < b->getArtist(); });
-                break;
+        case SORT_ARTIST:
+            sort(displayList.begin(), displayList.end(),
+                [](song* a, song* b){ return a->getArtist() < b->getArtist(); });
+            break;
 
-            case SORT_ALBUM:
-                sort(displayList.begin(), displayList.end(),
-                    [](song* a, song* b){ return a->getAlbum() < b->getAlbum(); });
-                break;
+        case SORT_ALBUM:
+            sort(displayList.begin(), displayList.end(),
+                [](song* a, song* b){ return a->getAlbum() < b->getAlbum(); });
+            break;
 
-            case SORT_YEAR:
-                sort(displayList.begin(), displayList.end(),
-                    [](song* a, song* b){ return a->getYear() < b->getYear(); });
-                break;
+        case SORT_YEAR:
+            sort(displayList.begin(), displayList.end(),
+                [](song* a, song* b){ return a->getYear() < b->getYear(); });
+            break;
 
-            case SORT_DURATION:
-                sort(displayList.begin(), displayList.end(),
-                    [](song* a, song* b){ return a->getDuration() < b->getDuration(); });
-                break;
-            default: break;
-        }
-    //}   
+        case SORT_DURATION:
+            sort(displayList.begin(), displayList.end(),
+                [](song* a, song* b){ return a->getDuration() < b->getDuration(); });
+            break;
+        default: break;
+    }   
 }
 
 
@@ -104,15 +102,15 @@ void BrowsePlaylistScreen::render()
     song*     cur  = player_.getCurrentSong();
 
     ui.clearScreen();
-    ui.printTopBorder(pl->getName(), 56);
+    ui.printTopBorder(UIRender::MAGENTA + pl->getName() + UIRender::RESET, 56);
     ui.printSection({
-        "Songs: " + to_string(pl->size()) + "   Sort: " + sortModeString()
-        + (searchQuery.empty() ? "" : "   Search: \"" + searchQuery + "\"")
+        UIRender::CYAN + "Songs: " + to_string(pl->size()) + "   Sort: " + sortModeString()
+        + (searchQuery.empty() ? "" : "   Search: \"" + searchQuery + "\"" ) + UIRender::RESET
     });
 
     //song rows
     if (displayList.empty()) {
-        ui.printSection({ "No songs match." });
+        ui.printSection({ UIRender::RED + "No songs match." + UIRender::RESET});
     } else {
         ui.printSeparator();
         for (int i = 0; i < (int)displayList.size(); i++) {
@@ -122,7 +120,7 @@ void BrowsePlaylistScreen::render()
     }
 
     ui.printSection({
-        " [num] play   [s] sort   [f] filter   [/] search " , " [0] back"
+        UIRender::GRAY + " [num] play   [s] sort   [f] filter   [/] search " , " [0] back" + UIRender::RESET
     });
     ui.printBottomBorder();
     cout << " Choice: ";
@@ -144,9 +142,9 @@ void BrowsePlaylistScreen::handleInput()
     else if (key == 's') 
     {
         ui.clearScreen();
-        ui.printTopBorder("Sort By", 56);
-        ui.printSection({ "1. Title", "2. Artist", "3. Album",
-                          "4. Year",  "5. Duration", "0. Default" });
+        ui.printTopBorder(UIRender::GREEN + "Sort By" + UIRender::RESET, 56);
+        ui.printSection({ UIRender::CYAN + "1. Title", "2. Artist", "3. Album",
+                          "4. Year",  "5. Duration", "0. Default" + UIRender::RESET});
         ui.printBottomBorder();
         cout << " Sort choice: ";
         int choice = input.readInt(0, 5);
@@ -162,8 +160,8 @@ void BrowsePlaylistScreen::handleInput()
     else if (key == 'f') 
     {
         ui.clearScreen();
-        ui.printTopBorder("Filter By", 56);
-        ui.printSection({"1. Artist", "2. Album", "0. Clear Filter"});
+        ui.printTopBorder(UIRender::GREEN + "Filter By" + UIRender::RESET, 56);
+        ui.printSection({UIRender::CYAN + "1. Artist", "2. Album", "0. Clear Filter" + UIRender::RESET});
         ui.printBottomBorder();
 
         int choice = input.readInt(0,2);

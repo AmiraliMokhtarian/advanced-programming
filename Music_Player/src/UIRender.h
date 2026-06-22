@@ -13,6 +13,9 @@ public:
     static const string GREEN;
     static const string YELLOW;
     static const string WHITE;
+    static const string GRAY;
+    static const string MAGENTA;
+    static const string RED;
 public:
     void clearScreen();
     void printTopBorder(const string& title="", int width = 56);
