@@ -16,12 +16,12 @@ void MusicLibrary::addSong(song* song)
     songs.push_back(song);
 }
 
-vector<song *> &MusicLibrary::getSongs()
+vector<song*> &MusicLibrary::getSongs()
 {
     return songs;
 }
 
-song *MusicLibrary::findByPath(const string &path)
+song* MusicLibrary::findByPath(const string &path)
 {
     for(song* s : songs){
         if(s->getFilePath() == path){
