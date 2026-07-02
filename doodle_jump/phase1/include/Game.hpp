@@ -3,10 +3,12 @@
 #include "ResourceManager.hpp"
 #include "GameState.hpp"
 #include "player.hpp"
+#include "platform.hpp"
 
 class Game {
 public:
     Game();
+    ~Game();
     void run();
 
 private:
@@ -22,10 +24,15 @@ private:
     void renderGameplay();
     void renderGameOver();
 
+    //generating platforms
+    void generateInitialPlatforms();
+    void spawnPlatform(float yPosition);
+
     sf::RenderWindow window;
     ResourceManager<sf::Texture> textures;
     ResourceManager<sf::Font> fonts;
 
     GameState currentState;
     Player player;
+    vector<Platform*> platforms;
 };
