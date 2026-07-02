@@ -3,7 +3,8 @@
 Game::Game()
     : window(sf::VideoMode(600, 800), "Doodle Jump")
     , currentState(GameState::Gameplay)
-    , player(textures.load("player" , "assets/right_doodle.png"))
+    , player(textures.load("player_left" , "assets/left_doodle.png"),
+             textures.load("player_right" , "assets/right_doodle.png"))
 {
     window.setFramerateLimit(60);
 }
@@ -52,7 +53,8 @@ void Game::render()
 void Game::updateMenu(float dt) {}
 void Game::updateGameplay(float dt) 
 {
-    player.update(dt);
+    player.handleInput();
+    player.update(dt, window.getSize().x);
 }
 void Game::updateGameOver(float dt) {}
 
