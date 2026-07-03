@@ -3,7 +3,7 @@
 BrokenPlatform::BrokenPlatform(sf::Texture& texture, sf::Vector2f pos)
     : Platform(texture, pos)
     , isBroken(false)
-    , fallSpeed(400.f)
+    , fallSpeed(450.f)
 {}
 
 void BrokenPlatform::update(float dt) 

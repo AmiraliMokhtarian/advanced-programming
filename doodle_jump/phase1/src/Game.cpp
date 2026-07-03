@@ -72,6 +72,8 @@ void Game::render()
 }
 
 void Game::updateMenu(float dt) {}
+
+
 void Game::updateGameplay(float dt) 
 {
     player.handleInput();
@@ -80,7 +82,32 @@ void Game::updateGameplay(float dt)
     for (auto* platform : platforms) {
         platform->update(dt); 
     }
+
+    if (player.getVelocity().y > 0.f) 
+    {
+        for (auto* platform : platforms) 
+        {
+            //is there any collision between player and platform?
+            if (player.getBounds().intersects(platform->getBounds())){
+
+                //ensure the player is landing on top of the platform
+                if (player.getBounds().top + player.getBounds().height <= platform->getBounds().top + 20.f){
+                    BrokenPlatform* broken = dynamic_cast<BrokenPlatform*>(platform);
+                    if (broken) {
+                        broken->breakPlatform();
+                    } 
+                    else {
+                        player.bounce(); 
+                    }
+
+                    break; 
+                }
+            }
+        }
+    }
 }
+
+
 void Game::updateGameOver(float dt) {}
 
 void Game::renderMenu() {}
@@ -98,7 +125,7 @@ void Game::generateInitialPlatforms() {
     sf::Vector2f playerPos = player.getPosition();
 
     float firstPlatformX = playerPos.x - 20.f; 
-    float firstPlatformY = playerPos.y + 60.f; 
+    float firstPlatformY = playerPos.y + 80.f; 
 
     platforms.push_back(new NormalPlatform(textures.get("platform_normal"), sf::Vector2f(firstPlatformX, firstPlatformY)));
 

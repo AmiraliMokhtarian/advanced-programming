@@ -10,6 +10,7 @@ Player::Player(sf::Texture& leftTex, sf::Texture& rightTex)
 {
     sprite.setTexture(rightTex);
     sprite.setPosition(position);
+    sprite.setScale(0.9f , 0.9f);
 }
 
 void Player::render(sf::RenderWindow& window) 
@@ -58,4 +59,19 @@ void Player::update(float dt, float windowWidth)
     }
     
     sprite.setPosition(position);
+}
+
+void Player::bounce()
+{
+    velocity.y = -650.f;
+}
+
+sf::FloatRect Player::getBounds() const
+{
+    return sprite.getGlobalBounds();
+}
+
+sf::Vector2f Player::getVelocity() const 
+{
+    return velocity;
 }

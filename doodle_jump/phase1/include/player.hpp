@@ -10,6 +10,9 @@ public:
     sf::Vector2f getPosition() const;
     void setPosition(sf::Vector2f pos);
     void update(float dt, float windowWidth);
+    void bounce();
+    sf::FloatRect getBounds() const;
+    sf::Vector2f getVelocity() const;
 
 private:
     sf::Sprite sprite;
