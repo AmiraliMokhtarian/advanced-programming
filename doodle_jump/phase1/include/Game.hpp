@@ -23,6 +23,10 @@ private:
     void renderMenu();
     void renderGameplay();
     void renderGameOver();
+    
+    //helper
+    void handleCollisions();
+    void handleScrolling(float dt);
 
     //generating platforms
     void generateInitialPlatforms();

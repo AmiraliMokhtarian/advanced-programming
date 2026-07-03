@@ -12,6 +12,9 @@ public:
 
     sf::FloatRect getBounds() const;
     sf::Vector2f getPosition() const;
+    void setPosition(sf::Vector2f pos);
+
+    void scroll(float offsetY);
 
 protected:
     sf::Sprite sprite;

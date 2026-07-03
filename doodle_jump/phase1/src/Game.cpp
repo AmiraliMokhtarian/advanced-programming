@@ -82,7 +82,12 @@ void Game::updateGameplay(float dt)
     for (auto* platform : platforms) {
         platform->update(dt); 
     }
+    handleCollisions();
+    handleScrolling(dt);
+}
 
+void Game::handleCollisions()
+{
     if (player.getVelocity().y > 0.f) 
     {
         for (auto* platform : platforms) 
@@ -95,6 +100,7 @@ void Game::updateGameplay(float dt)
                     BrokenPlatform* broken = dynamic_cast<BrokenPlatform*>(platform);
                     if (broken) {
                         broken->breakPlatform();
+                        player.bounce();
                     } 
                     else {
                         player.bounce(); 
@@ -103,6 +109,51 @@ void Game::updateGameplay(float dt)
                     break; 
                 }
             }
+        }
+    }
+}
+
+void Game::handleScrolling(float dt) 
+{
+    sf::Vector2f playerPos = player.getPosition();
+    
+    float scrollThreshold = 400.f; 
+
+    if (playerPos.y < scrollThreshold)
+    {
+        float offsetY = scrollThreshold - playerPos.y;
+
+        //player couldn't jump upper than mid page:
+        player.setPosition(sf::Vector2f(playerPos.x, scrollThreshold));
+
+        for (auto it = platforms.begin(); it != platforms.end(); )
+        {
+            Platform* platform = *it;
+            
+            platform->scroll(offsetY);
+
+            if (platform->getPosition().y > 800.f)
+            {
+                delete platform;
+                it = platforms.erase(it); //memory management
+            }
+            else
+            {
+                ++it;
+            }
+        }
+
+        while (platforms.size() < 12) 
+        {
+            float highestY = 800.f;
+            for (auto* p : platforms) {
+                if (p->getPosition().y < highestY) {
+                    highestY = p->getPosition().y;
+                }
+            }
+            
+            float newSpawnY = highestY - (70.f + std::rand() % 60);
+            spawnPlatform(newSpawnY);
         }
     }
 }

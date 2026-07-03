@@ -21,3 +21,14 @@ sf::Vector2f Platform::getPosition() const
 {
     return position;
 }
+
+void Platform::setPosition(sf::Vector2f pos)
+{
+    position = pos;
+}
+
+void Platform::scroll(float offsetY) 
+{
+    position.y += offsetY;      
+    sprite.setPosition(position); 
+}
