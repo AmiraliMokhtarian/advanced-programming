@@ -10,6 +10,9 @@ Platform::Platform(sf::Texture& texture, sf::Vector2f pos)
 void Platform::render(sf::RenderWindow& window) 
 {
     window.draw(sprite);
+    if (hasSpring) {
+        window.draw(springSprite);
+    }
 }
 
 sf::FloatRect Platform::getBounds() const 
@@ -31,4 +34,23 @@ void Platform::scroll(float offsetY)
 {
     position.y += offsetY;      
     sprite.setPosition(position); 
+    //spring scrolling
+    if (hasSpring) {
+        springSprite.move(0.f, offsetY);
+    }
+}
+
+void Platform::addSpring(sf::Texture& springTexture) {
+    hasSpring = true;
+    springSprite.setTexture(springTexture);
+    
+    float springX = position.x + (sprite.getGlobalBounds().width / 2.f) - (springSprite.getGlobalBounds().width / 2.f);
+    float springY = position.y - springSprite.getGlobalBounds().height + 5.f; 
+    
+    springSprite.setPosition(springX, springY);
+}
+
+bool Platform::checkSpringCollision(sf::FloatRect playerBounds) {
+    if (!hasSpring) return false;
+    return playerBounds.intersects(springSprite.getGlobalBounds());
 }

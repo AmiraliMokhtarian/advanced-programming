@@ -16,7 +16,13 @@ public:
 
     void scroll(float offsetY);
 
+    void addSpring(sf::Texture& springTexture);
+    bool checkSpringCollision(sf::FloatRect playerBounds);
+
 protected:
     sf::Sprite sprite;
     sf::Vector2f position;
+
+    bool hasSpring = false;
+    sf::Sprite springSprite;
 };

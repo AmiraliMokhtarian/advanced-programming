@@ -9,10 +9,14 @@ public:
     void handleInput();
     sf::Vector2f getPosition() const;
     void setPosition(sf::Vector2f pos);
+    void setVelocity(sf::Vector2f vel);
     void update(float dt, float windowWidth);
     void bounce();
     sf::FloatRect getBounds() const;
     sf::Vector2f getVelocity() const;
+    
+    void addScore(float value) {score += value;}
+    int getScore() const {return score;}
 
 private:
     sf::Sprite sprite;

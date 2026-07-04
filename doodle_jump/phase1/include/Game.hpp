@@ -39,4 +39,8 @@ private:
     GameState currentState;
     Player player;
     vector<Platform*> platforms;
+
+    sf::Font font;
+    sf::Text scoreText;
+    void initUI();
 };

@@ -29,6 +29,11 @@ void Player::setPosition(sf::Vector2f pos)
     sprite.setPosition(position);
 }
 
+void Player::setVelocity(sf::Vector2f vel)
+{
+    velocity = vel;
+}
+
 void Player::handleInput()
 {
     //reset x velocity in each frame

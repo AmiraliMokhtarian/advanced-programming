@@ -4,6 +4,8 @@
 #include "BrokenPlatform.hpp"
 #include <cstdlib> //srand
 #include <ctime>   //time
+#include <iostream>
+#include <stdexcept>
 
 Game::Game()
     : window(sf::VideoMode(600, 800), "Doodle Jump")
@@ -18,7 +20,9 @@ Game::Game()
     textures.load("platform_normal", "assets/normal_platform.png");
     textures.load("platform_moving", "assets/moving_platform.png");
     textures.load("platform_broken", "assets/broken_platform.png");
+    textures.load("spring", "assets/spring_sprite.png");
 
+    initUI();
     generateInitialPlatforms();
 }
 
@@ -84,6 +88,9 @@ void Game::updateGameplay(float dt)
     }
     handleCollisions();
     handleScrolling(dt);
+
+    scoreText.setString("Score: " + std::to_string(player.getScore()));
+
 }
 
 void Game::handleCollisions()
@@ -92,6 +99,13 @@ void Game::handleCollisions()
     {
         for (auto* platform : platforms) 
         {
+            //any collision with spring?
+            if (platform->checkSpringCollision(player.getBounds())) 
+            {
+                player.setVelocity(sf::Vector2f(player.getVelocity().x, -900.f)); 
+                return;
+            }
+
             //is there any collision between player and platform?
             if (player.getBounds().intersects(platform->getBounds())){
 
@@ -125,6 +139,10 @@ void Game::handleScrolling(float dt)
 
         //player couldn't jump upper than mid page:
         player.setPosition(sf::Vector2f(playerPos.x, scrollThreshold));
+
+        int points = offsetY / 20;
+        if (points < 1) points = 1;
+        player.addScore(points);
 
         for (auto it = platforms.begin(); it != platforms.end(); )
         {
@@ -169,6 +187,7 @@ void Game::renderGameplay()
         platform->render(window);
     }
     player.render(window);
+    window.draw(scoreText);
 }
 void Game::renderGameOver() {}
 
@@ -193,7 +212,11 @@ void Game::spawnPlatform(float yPosition) {
     int randType = std::rand() % 100;
 
     if (randType < 70) {
-        platforms.push_back(new NormalPlatform(textures.get("platform_normal"), sf::Vector2f(xPosition, yPosition)));
+        NormalPlatform* np = new NormalPlatform(textures.get("platform_normal"), sf::Vector2f(xPosition, yPosition));        
+        if (std::rand() % 100 < 10) {
+            np->addSpring(textures.get("spring"));
+        }
+        platforms.push_back(np);
     } 
     else if (randType < 90) {
         platforms.push_back(new MovingPlatform(textures.get("platform_moving"), sf::Vector2f(xPosition, yPosition)));
@@ -201,4 +224,18 @@ void Game::spawnPlatform(float yPosition) {
     else {
         platforms.push_back(new BrokenPlatform(textures.get("platform_broken"), sf::Vector2f(xPosition, yPosition)));
     }
+}
+
+void Game::initUI() 
+{
+    if (!font.loadFromFile("fonts/ariblk.ttf")) 
+    {
+        std::cerr << "Error: Could not load font from assets/arial.ttf!" << std::endl;
+        throw std::runtime_error("Failed to load critical game font.");
+    }
+
+    scoreText.setFont(font);
+    scoreText.setCharacterSize(24); 
+    scoreText.setFillColor(sf::Color::Black); 
+    scoreText.setPosition(20.f, 20.f); 
 }
