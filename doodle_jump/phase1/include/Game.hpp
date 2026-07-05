@@ -27,6 +27,7 @@ private:
     //helper
     void handleCollisions();
     void handleScrolling(float dt);
+    void loadTextures();
 
     //generating platforms
     void generateInitialPlatforms();
@@ -40,7 +41,13 @@ private:
     Player player;
     vector<Platform*> platforms;
 
+    sf::Sprite backgroundSprite;
     sf::Font font;
     sf::Text scoreText;
     void initUI();
+
+    sf::Sprite startButtonSprite;
+    sf::Text titleText;
+    sf::Text highScoreText;
+    int highScore = 0;
 };

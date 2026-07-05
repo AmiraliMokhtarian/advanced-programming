@@ -9,19 +9,14 @@
 
 Game::Game()
     : window(sf::VideoMode(600, 800), "Doodle Jump")
-    , currentState(GameState::Gameplay)
+    , currentState(GameState::Menu)
     , player(textures.load("player_left", "assets/left_doodle.png"), 
              textures.load("player_right", "assets/right_doodle.png"))
 {
     window.setFramerateLimit(60);
     std::srand(static_cast<unsigned int>(std::time(nullptr))); 
 
-    //loading textures of platforms
-    textures.load("platform_normal", "assets/normal_platform.png");
-    textures.load("platform_moving", "assets/moving_platform.png");
-    textures.load("platform_broken", "assets/broken_platform.png");
-    textures.load("spring", "assets/spring_sprite.png");
-
+    loadTextures();
     initUI();
     generateInitialPlatforms();
 }
@@ -32,6 +27,23 @@ Game::~Game()
         delete platform; 
     }
     platforms.clear();
+}
+
+void Game::loadTextures()
+{                                   
+    textures.load("background", "assets/background.png");
+    textures.load("platform_normal", "assets/normal_platform.png");
+    textures.load("platform_moving", "assets/moving_platform.png");
+    textures.load("platform_broken", "assets/broken_platform.png");
+    textures.load("spring", "assets/spring_sprite.png");
+    textures.load("start_button", "assets/start_button.png");
+
+    backgroundSprite.setTexture(textures.get("background"));
+
+    startButtonSprite.setTexture(textures.get("start_button"));
+    float buttonX = (600.f - startButtonSprite.getGlobalBounds().width) / 2.f;
+    float buttonY = 400.f;
+    startButtonSprite.setPosition(buttonX, buttonY);
 }
 
 void Game::run() 
@@ -75,7 +87,20 @@ void Game::render()
     window.display();
 }
 
-void Game::updateMenu(float dt) {}
+void Game::updateMenu(float dt) 
+{
+    //left_click
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) 
+    {
+        sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+        sf::Vector2f mousePosF(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
+
+        if (startButtonSprite.getGlobalBounds().contains(mousePosF)) 
+        {
+            currentState = GameState::Gameplay;
+        }
+    }
+}
 
 
 void Game::updateGameplay(float dt) 
@@ -90,6 +115,13 @@ void Game::updateGameplay(float dt)
     handleScrolling(dt);
 
     scoreText.setString("Score: " + std::to_string(player.getScore()));
+
+    if (player.getPosition().y > 800.f) {
+        if (player.getScore() > highScore) {
+            highScore = player.getScore(); 
+        }
+        currentState = GameState::GameOver;
+    }
 
 }
 
@@ -179,10 +211,25 @@ void Game::handleScrolling(float dt)
 
 void Game::updateGameOver(float dt) {}
 
-void Game::renderMenu() {}
+void Game::renderMenu() 
+{
+    window.clear();
+    window.draw(backgroundSprite);
+
+    window.draw(titleText);
+    window.draw(startButtonSprite);
+
+    highScoreText.setString("High Score: " + std::to_string(highScore));
+    float hsX = (600.f - highScoreText.getGlobalBounds().width) / 2.f;
+    highScoreText.setPosition(hsX, 530.f);
+    window.draw(highScoreText);
+}
 
 void Game::renderGameplay() 
 {
+    window.clear();
+    window.draw(backgroundSprite);
+
     for (auto* platform : platforms) {
         platform->render(window);
     }
@@ -230,7 +277,7 @@ void Game::initUI()
 {
     if (!font.loadFromFile("fonts/ariblk.ttf")) 
     {
-        std::cerr << "Error: Could not load font from assets/arial.ttf!" << std::endl;
+        std::cerr << "Error: Could not load font from assets/ariblk.ttf!" << std::endl;
         throw std::runtime_error("Failed to load critical game font.");
     }
 
@@ -238,4 +285,19 @@ void Game::initUI()
     scoreText.setCharacterSize(24); 
     scoreText.setFillColor(sf::Color::Black); 
     scoreText.setPosition(20.f, 20.f); 
+
+    //main menu:
+    titleText.setFont(font);
+    titleText.setString("DOODLE JUMP");
+    titleText.setCharacterSize(55); 
+    titleText.setFillColor(sf::Color::Black);
+    titleText.setStyle(sf::Text::Bold);
+    float titleX = (600.f - titleText.getGlobalBounds().width) / 2.f;
+    titleText.setPosition(titleX, 200.f); 
+
+    highScoreText.setFont(font);
+    highScoreText.setCharacterSize(26);            
+    highScoreText.setFillColor(sf::Color(0, 102, 204)); 
+    highScoreText.setStyle(sf::Text::Bold);
+    highScoreText.setPosition(200.f, 530.f);
 }

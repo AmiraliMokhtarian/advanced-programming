@@ -1,6 +1,7 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -Iinclude
-LDFLAGS = -lsfml-graphics -lsfml-window -lsfml-system
+
+CXXFLAGS = -std=c++17 -Wall -g -O0 -Iinclude
+LDFLAGS = -g -lsfml-graphics -lsfml-window -lsfml-system
 
 SRC_DIR = src
 OBJ_DIR = obj

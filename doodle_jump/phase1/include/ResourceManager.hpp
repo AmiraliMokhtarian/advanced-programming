@@ -7,20 +7,27 @@ using namespace std;
 template <typename T>
 class ResourceManager {
 public:
-    T& load(const string& id, const string& path) {
+    T& load(const string& id, const string& path)
+    {
+        auto it = cache.find(id);
 
-        if (cache.find(id) == cache.end()){
+        if (it == cache.end())
+        {
             T asset;
-            asset.loadFromFile(path);
 
-            cache[id] = move(asset);
+            if (!asset.loadFromFile(path))
+            {
+                throw runtime_error("Cannot load: " + path);
+            }
+
+            it = cache.emplace(id, std::move(asset)).first;
         }
 
-        return cache[id];
+        return it->second;
     }
 
     T& get(const string& id) {
-        return cache[id];
+        return cache.at(id);
     }
     
 private:
