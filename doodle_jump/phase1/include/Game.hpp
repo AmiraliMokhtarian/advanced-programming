@@ -33,9 +33,10 @@ private:
     void generateInitialPlatforms();
     void spawnPlatform(float yPosition);
 
+    void initUI();
+
     sf::RenderWindow window;
     ResourceManager<sf::Texture> textures;
-    ResourceManager<sf::Font> fonts;
 
     GameState currentState;
     Player player;
@@ -44,12 +45,12 @@ private:
     sf::Sprite backgroundSprite;
     sf::Font font;
     sf::Text scoreText;
-    void initUI();
 
     sf::Sprite startButtonSprite;
     sf::Text titleText;
     sf::Text highScoreText;
     int highScore = 0;
+    
     sf::Sprite restartButtonSprite;
     sf::Sprite menuButtonSprite;
     sf::Text gameOverTitleText;

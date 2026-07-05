@@ -43,6 +43,7 @@ void Platform::scroll(float offsetY)
 void Platform::addSpring(sf::Texture& springTexture) 
 {
     hasSpring = true;
+    springSprite.setTexture(springTexture);
     springSprite.setTextureRect(sf::IntRect(0, 0, 25, 26)); 
     
     isSpringTriggered = false;
