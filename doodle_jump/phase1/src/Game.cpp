@@ -6,6 +6,7 @@
 #include <ctime>   //time
 #include <iostream>
 #include <stdexcept>
+#include <fstream>
 
 Game::Game()
     : window(sf::VideoMode(600, 800), "Doodle Jump")
@@ -19,6 +20,14 @@ Game::Game()
     loadTextures();
     initUI();
     generateInitialPlatforms();
+
+    std::ifstream inputFile("highscore.txt");
+    if (inputFile.is_open()) {
+        inputFile >> highScore;
+        inputFile.close();
+    } else {
+        highScore = 0;
+    }
 }
 
 Game::~Game() 
@@ -37,6 +46,8 @@ void Game::loadTextures()
     textures.load("platform_broken", "assets/broken_platform.png");
     textures.load("spring", "assets/spring_sprite.png");
     textures.load("start_button", "assets/start_button.png");
+    textures.load("restart", "assets/restart_button.png");
+    textures.load("menu", "assets/menu_button.png");
 
     backgroundSprite.setTexture(textures.get("background"));
 
@@ -44,6 +55,14 @@ void Game::loadTextures()
     float buttonX = (600.f - startButtonSprite.getGlobalBounds().width) / 2.f;
     float buttonY = 400.f;
     startButtonSprite.setPosition(buttonX, buttonY);
+
+    restartButtonSprite.setTexture(textures.get("restart"));
+    float restartX = (600.f - restartButtonSprite.getGlobalBounds().width) / 2.f;
+    restartButtonSprite.setPosition(restartX, 460.f);
+
+    menuButtonSprite.setTexture(textures.get("menu"));
+    float menuX = (600.f - menuButtonSprite.getGlobalBounds().width) / 2.f;
+    menuButtonSprite.setPosition(menuX, 550.f);
 }
 
 void Game::run() 
@@ -119,6 +138,12 @@ void Game::updateGameplay(float dt)
     if (player.getPosition().y > 800.f) {
         if (player.getScore() > highScore) {
             highScore = player.getScore(); 
+        
+            std::ofstream outputFile("highscore.txt");
+            if (outputFile.is_open()) {
+                outputFile << highScore;
+                outputFile.close();
+            }
         }
         currentState = GameState::GameOver;
     }
@@ -209,7 +234,33 @@ void Game::handleScrolling(float dt)
 }
 
 
-void Game::updateGameOver(float dt) {}
+void Game::updateGameOver(float dt) 
+{
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) 
+    {
+        sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+        sf::Vector2f mousePosF(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
+
+        if (restartButtonSprite.getGlobalBounds().contains(mousePosF)) 
+        {
+            for (auto* platform : platforms) {
+                delete platform;
+            }
+            platforms.clear();
+
+            player.setPosition(sf::Vector2f(300.f, 600.f));
+            player.setVelocity(sf::Vector2f(0.f, 0.f));
+            player.resetScore();
+
+            generateInitialPlatforms();
+            currentState = GameState::Gameplay;
+        }
+        else if (menuButtonSprite.getGlobalBounds().contains(mousePosF)) 
+        {
+            currentState = GameState::Menu;
+        }
+    }
+}
 
 void Game::renderMenu() 
 {
@@ -236,7 +287,25 @@ void Game::renderGameplay()
     player.render(window);
     window.draw(scoreText);
 }
-void Game::renderGameOver() {}
+void Game::renderGameOver() 
+{
+    window.clear();
+    window.draw(backgroundSprite);
+
+    gameOverTitleText.setPosition((600.f - gameOverTitleText.getGlobalBounds().width) / 2.f, 150.f);
+    window.draw(gameOverTitleText);
+
+    finalScoreText.setString("Your Score: " + std::to_string(player.getScore()));
+    finalScoreText.setPosition((600.f - finalScoreText.getGlobalBounds().width) / 2.f, 260.f);
+    window.draw(finalScoreText);
+
+    gameOverHighScoreText.setString("High Score: " + std::to_string(highScore));
+    gameOverHighScoreText.setPosition((600.f - gameOverHighScoreText.getGlobalBounds().width) / 2.f, 330.f);
+    window.draw(gameOverHighScoreText);
+
+    window.draw(restartButtonSprite);
+    window.draw(menuButtonSprite);
+}
 
 void Game::generateInitialPlatforms() {
     sf::Vector2f playerPos = player.getPosition();
@@ -300,4 +369,20 @@ void Game::initUI()
     highScoreText.setFillColor(sf::Color(0, 102, 204)); 
     highScoreText.setStyle(sf::Text::Bold);
     highScoreText.setPosition(200.f, 530.f);
+
+    //game over
+    gameOverTitleText.setFont(font);
+    gameOverTitleText.setString("GAME OVER");
+    gameOverTitleText.setCharacterSize(55);
+    gameOverTitleText.setFillColor(sf::Color::Red);
+    gameOverTitleText.setStyle(sf::Text::Bold);
+
+    finalScoreText.setFont(font);
+    finalScoreText.setCharacterSize(30);
+    finalScoreText.setFillColor(sf::Color::Black);
+
+    gameOverHighScoreText.setFont(font);
+    gameOverHighScoreText.setCharacterSize(26);
+    gameOverHighScoreText.setFillColor(sf::Color(0, 102, 204));
+    gameOverHighScoreText.setStyle(sf::Text::Bold);
 }

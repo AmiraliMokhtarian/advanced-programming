@@ -50,4 +50,9 @@ private:
     sf::Text titleText;
     sf::Text highScoreText;
     int highScore = 0;
+    sf::Sprite restartButtonSprite;
+    sf::Sprite menuButtonSprite;
+    sf::Text gameOverTitleText;
+    sf::Text finalScoreText;
+    sf::Text gameOverHighScoreText;
 };

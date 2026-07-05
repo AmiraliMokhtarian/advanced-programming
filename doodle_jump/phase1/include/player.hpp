@@ -17,6 +17,7 @@ public:
     
     void addScore(float value) {score += value;}
     int getScore() const {return score;}
+    void resetScore() {score = 0;}
 
 private:
     sf::Sprite sprite;
