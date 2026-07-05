@@ -160,6 +160,7 @@ void Game::handleCollisions()
             if (platform->checkSpringCollision(player.getBounds())) 
             {
                 player.setVelocity(sf::Vector2f(player.getVelocity().x, -900.f)); 
+                platform->triggerSpring();
                 return;
             }
 

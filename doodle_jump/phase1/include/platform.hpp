@@ -18,6 +18,7 @@ public:
 
     void addSpring(sf::Texture& springTexture);
     bool checkSpringCollision(sf::FloatRect playerBounds);
+    void triggerSpring();
 
 protected:
     sf::Sprite sprite;
@@ -25,4 +26,5 @@ protected:
 
     bool hasSpring = false;
     sf::Sprite springSprite;
+    bool isSpringTriggered = false;
 };
