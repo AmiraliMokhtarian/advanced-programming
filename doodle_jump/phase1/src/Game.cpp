@@ -9,7 +9,7 @@
 
 Game::Game()
     : window(sf::VideoMode(600, 800), "Doodle Jump")
-    , currentState(GameState::Gameplay)
+    , currentState(GameState::Menu)
     , player(textures.load("player_left", "assets/left_doodle.png"), 
              textures.load("player_right", "assets/right_doodle.png"))
 {
@@ -103,6 +103,7 @@ void Game::handleCollisions()
             if (platform->checkSpringCollision(player.getBounds())) 
             {
                 player.setVelocity(sf::Vector2f(player.getVelocity().x, -900.f)); 
+                platform->triggerSpring();
                 return;
             }
 

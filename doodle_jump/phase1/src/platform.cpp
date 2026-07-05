@@ -40,9 +40,12 @@ void Platform::scroll(float offsetY)
     }
 }
 
-void Platform::addSpring(sf::Texture& springTexture) {
+void Platform::addSpring(sf::Texture& springTexture) 
+{
     hasSpring = true;
-    springSprite.setTexture(springTexture);
+    springSprite.setTextureRect(sf::IntRect(0, 0, 25, 26)); 
+    
+    isSpringTriggered = false;
     
     float springX = position.x + (sprite.getGlobalBounds().width / 2.f) - (springSprite.getGlobalBounds().width / 2.f);
     float springY = position.y - springSprite.getGlobalBounds().height + 5.f; 
@@ -50,7 +53,16 @@ void Platform::addSpring(sf::Texture& springTexture) {
     springSprite.setPosition(springX, springY);
 }
 
-bool Platform::checkSpringCollision(sf::FloatRect playerBounds) {
+bool Platform::checkSpringCollision(sf::FloatRect playerBounds) 
+{
     if (!hasSpring) return false;
     return playerBounds.intersects(springSprite.getGlobalBounds());
+}
+
+void Platform::triggerSpring()
+{
+    if (!isSpringTriggered) { 
+        isSpringTriggered = true; 
+        springSprite.setTextureRect(sf::IntRect(0, 26, 25, 26)); 
+    }
 }
