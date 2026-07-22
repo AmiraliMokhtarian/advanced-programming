@@ -1,7 +1,7 @@
 #include "player.hpp"
 
 Player::Player(sf::Texture& leftTex, sf::Texture& rightTex)
-    : position(250.f, 600.f) //near bottom of a 400*600 window
+    : position(250.f, 600.f) //near bottom of a 600*800 window
     , velocity(0.f, 0.f)
     , score(0)
     , moveSpeed(400.f)
