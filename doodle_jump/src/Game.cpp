@@ -3,8 +3,8 @@
 #include "MovingPlatform.hpp"
 #include "BrokenPlatform.hpp"
 #include "Constants.hpp"
-#include <cstdlib> //srand
-#include <ctime>   //time
+#include <cstdlib> // srand
+#include <ctime>   // time
 #include <iostream>
 #include <stdexcept>
 #include <fstream>
@@ -14,13 +14,16 @@ Game::Game()
     , currentState(GameState::Menu)
     , player(textures.load("player_left", "assets/left_doodle.png"), 
              textures.load("player_right", "assets/right_doodle.png"))
+    , settingsMenu(static_cast<float>(Config::Window::WIDTH), static_cast<float>(Config::Window::HEIGHT), textures, font)
 {
     window.setFramerateLimit(Config::Window::FPS_LIMIT);
     std::srand(static_cast<unsigned int>(std::time(nullptr))); 
 
+    initUI();        
     loadTextures();
-    initUI();
     generateInitialPlatforms();
+
+    soundManager.playMusic("sounds/MainMenu_Song.flac");
 
     std::ifstream inputFile("highscore.txt");
     if (inputFile.is_open()) {
@@ -40,7 +43,7 @@ Game::~Game()
 }
 
 void Game::loadTextures()
-{                                   
+{                                      
     textures.load("background", "assets/background.png");
     textures.load("platform_normal", "assets/normal_platform.png");
     textures.load("platform_moving", "assets/moving_platform.png");
@@ -49,21 +52,37 @@ void Game::loadTextures()
     textures.load("start_button", "assets/start_button.png");
     textures.load("restart", "assets/restart_button.png");
     textures.load("menu", "assets/menu_button.png");
+    
+    textures.load("settings_button", "assets/Settings_button.png");
 
     backgroundSprite.setTexture(textures.get("background"));
 
+    float centerX = Config::Window::WIDTH / 2.0f;
+
+    // Start Button
     startButtonSprite.setTexture(textures.get("start_button"));
-    float buttonX = (float(Config::Window::WIDTH) - startButtonSprite.getGlobalBounds().width) / 2.f;
-    float buttonY = 400.f;
-    startButtonSprite.setPosition(buttonX, buttonY);
+    sf::FloatRect sb = startButtonSprite.getLocalBounds();
+    startButtonSprite.setOrigin(sb.width / 2.0f, sb.height / 2.0f);
+    startButtonSprite.setPosition(centerX, 360.f);
 
+    // Settings Button
+    settingsButtonSprite.setTexture(textures.get("settings_button"));
+    settingsButtonSprite.setScale(0.5f, 0.5f); 
+    sf::FloatRect stb = settingsButtonSprite.getLocalBounds();
+    settingsButtonSprite.setOrigin(stb.width / 2.0f, stb.height / 2.0f);
+    settingsButtonSprite.setPosition(centerX, 450.f);
+
+    // Restart Button
     restartButtonSprite.setTexture(textures.get("restart"));
-    float restartX = (float(Config::Window::WIDTH) - restartButtonSprite.getGlobalBounds().width) / 2.f;
-    restartButtonSprite.setPosition(restartX, 460.f);
+    sf::FloatRect rb = restartButtonSprite.getLocalBounds();
+    restartButtonSprite.setOrigin(rb.width / 2.0f, rb.height / 2.0f);
+    restartButtonSprite.setPosition(centerX, 460.f);
 
+    // Menu Button
     menuButtonSprite.setTexture(textures.get("menu"));
-    float menuX = (float(Config::Window::WIDTH) - menuButtonSprite.getGlobalBounds().width) / 2.f;
-    menuButtonSprite.setPosition(menuX, 550.f);
+    sf::FloatRect mb = menuButtonSprite.getLocalBounds();
+    menuButtonSprite.setOrigin(mb.width / 2.0f, mb.height / 2.0f);
+    menuButtonSprite.setPosition(centerX, 550.f);
 }
 
 void Game::run() 
@@ -80,10 +99,19 @@ void Game::run()
 void Game::processEvents() 
 {
     sf::Event event;
-    //while any new event happend:
     while (window.pollEvent(event)) {
         if (event.type == sf::Event::Closed)
             window.close();
+
+        if (currentState == GameState::Settings) {
+            bool backPressed = settingsMenu.handleEvent(event, window);
+            
+            soundManager.setVolume(settingsMenu.getVolume());
+
+            if (backPressed) {
+                currentState = GameState::Menu;
+            }
+        }
     }
 }
 
@@ -91,6 +119,7 @@ void Game::update(float dt)
 {
     switch (currentState) {
         case GameState::Menu    : updateMenu(dt)    ; break;
+        case GameState::Settings: updateSettings(dt); break; 
         case GameState::Gameplay: updateGameplay(dt); break;
         case GameState::GameOver: updateGameOver(dt); break;
     }
@@ -101,6 +130,7 @@ void Game::render()
     window.clear(sf::Color(240, 240, 250));
     switch (currentState) {
         case GameState::Menu    : renderMenu()    ; break;
+        case GameState::Settings: renderSettings(); break; 
         case GameState::Gameplay: renderGameplay(); break;
         case GameState::GameOver: renderGameOver(); break;
     }
@@ -109,7 +139,6 @@ void Game::render()
 
 void Game::updateMenu(float dt) 
 {
-    //left_click
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) 
     {
         sf::Vector2i mousePos = sf::Mouse::getPosition(window);
@@ -119,9 +148,14 @@ void Game::updateMenu(float dt)
         {
             currentState = GameState::Gameplay;
         }
+        else if (settingsButtonSprite.getGlobalBounds().contains(mousePosF))
+        {
+            currentState = GameState::Settings;
+        }
     }
 }
 
+void Game::updateSettings(float dt) {}
 
 void Game::updateGameplay(float dt) 
 {
@@ -148,7 +182,6 @@ void Game::updateGameplay(float dt)
         }
         currentState = GameState::GameOver;
     }
-
 }
 
 void Game::handleCollisions()
@@ -157,7 +190,6 @@ void Game::handleCollisions()
     {
         for (auto* platform : platforms) 
         {
-            //any collision with spring?
             if (platform->checkSpringCollision(player.getBounds())) 
             {
                 player.setVelocity(sf::Vector2f(player.getVelocity().x, -900.f)); 
@@ -165,10 +197,7 @@ void Game::handleCollisions()
                 return;
             }
 
-            //is there any collision between player and platform?
             if (player.getBounds().intersects(platform->getBounds())){
-
-                //ensure the player is landing on top of the platform
                 if (player.getBounds().top + player.getBounds().height <= platform->getBounds().top + 20.f){
                     BrokenPlatform* broken = dynamic_cast<BrokenPlatform*>(platform);
                     if (broken) {
@@ -189,14 +218,11 @@ void Game::handleCollisions()
 void Game::handleScrolling(float dt) 
 {
     sf::Vector2f playerPos = player.getPosition();
-    
     float scrollThreshold = 400.f; 
 
     if (playerPos.y < scrollThreshold)
     {
         float offsetY = scrollThreshold - playerPos.y;
-
-        //player couldn't jump upper than mid page:
         player.setPosition(sf::Vector2f(playerPos.x, scrollThreshold));
 
         int points = offsetY / 20;
@@ -206,13 +232,12 @@ void Game::handleScrolling(float dt)
         for (auto it = platforms.begin(); it != platforms.end(); )
         {
             Platform* platform = *it;
-            
             platform->scroll(offsetY);
 
             if (platform->getPosition().y > float(Config::Window::HEIGHT))
             {
                 delete platform;
-                it = platforms.erase(it); //memory management
+                it = platforms.erase(it);
             }
             else
             {
@@ -234,7 +259,6 @@ void Game::handleScrolling(float dt)
         }
     }
 }
-
 
 void Game::updateGameOver(float dt) 
 {
@@ -271,11 +295,18 @@ void Game::renderMenu()
 
     window.draw(titleText);
     window.draw(startButtonSprite);
-
+    window.draw(settingsButtonSprite); 
     highScoreText.setString("High Score: " + std::to_string(highScore));
     float hsX = (float(Config::Window::WIDTH) - highScoreText.getGlobalBounds().width) / 2.f;
-    highScoreText.setPosition(hsX, 530.f);
+    highScoreText.setPosition(hsX, 220.f);
     window.draw(highScoreText);
+}
+
+void Game::renderSettings()
+{
+    window.clear();
+    window.draw(backgroundSprite); 
+    settingsMenu.render(window);   
 }
 
 void Game::renderGameplay() 
@@ -289,6 +320,7 @@ void Game::renderGameplay()
     player.render(window);
     window.draw(scoreText);
 }
+
 void Game::renderGameOver() 
 {
     window.clear();
@@ -348,7 +380,7 @@ void Game::initUI()
 {
     if (!font.loadFromFile("fonts/ariblk.ttf")) 
     {
-        std::cerr << "Error: Could not load font from assets/ariblk.ttf!" << std::endl;
+        std::cerr << "Error: Could not load font from fonts/ariblk.ttf!" << std::endl;
         throw std::runtime_error("Failed to load critical game font.");
     }
 
@@ -357,14 +389,14 @@ void Game::initUI()
     scoreText.setFillColor(sf::Color::Black); 
     scoreText.setPosition(20.f, 20.f); 
 
-    //main menu:
+    // main menu:
     titleText.setFont(font);
     titleText.setString("DOODLE JUMP");
     titleText.setCharacterSize(55); 
     titleText.setFillColor(sf::Color::Black);
     titleText.setStyle(sf::Text::Bold);
     float titleX = (float(Config::Window::WIDTH) - titleText.getGlobalBounds().width) / 2.f;
-    titleText.setPosition(titleX, 200.f); 
+    titleText.setPosition(titleX, 150.f); 
 
     highScoreText.setFont(font);
     highScoreText.setCharacterSize(26);            
@@ -372,7 +404,7 @@ void Game::initUI()
     highScoreText.setStyle(sf::Text::Bold);
     highScoreText.setPosition(200.f, 530.f);
 
-    //game over
+    // game over
     gameOverTitleText.setFont(font);
     gameOverTitleText.setString("GAME OVER");
     gameOverTitleText.setCharacterSize(55);

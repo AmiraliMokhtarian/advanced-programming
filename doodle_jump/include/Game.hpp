@@ -1,9 +1,12 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <vector>
 #include "ResourceManager.hpp"
 #include "GameState.hpp"
 #include "player.hpp"
 #include "platform.hpp"
+#include "SettingMenu.hpp"
+#include "SoundManager.hpp"
 
 class Game {
 public:
@@ -19,17 +22,19 @@ private:
     void updateMenu(float dt);
     void updateGameplay(float dt);
     void updateGameOver(float dt);
+    void updateSettings(float dt);
 
     void renderMenu();
     void renderGameplay();
     void renderGameOver();
-    
-    //helper
+    void renderSettings();
+
+    // helper
     void handleCollisions();
     void handleScrolling(float dt);
     void loadTextures();
 
-    //generating platforms
+    // generating platforms
     void generateInitialPlatforms();
     void spawnPlatform(float yPosition);
 
@@ -37,13 +42,17 @@ private:
 
     sf::RenderWindow window;
     ResourceManager<sf::Texture> textures;
+    sf::Font font; 
 
     GameState currentState;
     Player player;
-    vector<Platform*> platforms;
+    std::vector<Platform*> platforms;
 
+    SoundManager soundManager;      
+    SettingsMenu settingsMenu;      
+    
+    sf::Sprite settingsButtonSprite;
     sf::Sprite backgroundSprite;
-    sf::Font font;
     sf::Text scoreText;
 
     sf::Sprite startButtonSprite;

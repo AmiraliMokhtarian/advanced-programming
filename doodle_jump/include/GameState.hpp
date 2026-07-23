@@ -2,6 +2,7 @@
 
 enum class GameState {
     Menu,
+    Settings,
     Gameplay,
     GameOver
 };

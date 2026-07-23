@@ -1,4 +1,5 @@
 CXX      := g++
+CXXFLAGS := -std=c++17 -Iinclude 
 
 SFMLFLAGS := -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 
