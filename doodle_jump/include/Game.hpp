@@ -43,6 +43,7 @@ private:
     sf::RenderWindow window;
     ResourceManager<sf::Texture> textures;
     sf::Font font; 
+    sf::Font loadFont();
 
     GameState currentState;
     Player player;

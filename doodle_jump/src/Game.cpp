@@ -12,6 +12,7 @@
 Game::Game()
     : window(sf::VideoMode(Config::Window::WIDTH, Config::Window::HEIGHT), "Doodle Jump")
     , currentState(GameState::Menu)
+    , font(loadFont())
     , player(textures.load("player_left", "assets/left_doodle.png"), 
              textures.load("player_right", "assets/right_doodle.png"))
     , settingsMenu(static_cast<float>(Config::Window::WIDTH), static_cast<float>(Config::Window::HEIGHT), textures, font)
@@ -22,8 +23,6 @@ Game::Game()
     initUI();        
     loadTextures();
     generateInitialPlatforms();
-
-    soundManager.playMusic("sounds/MainMenu_Song.flac");
 
     std::ifstream inputFile("highscore.txt");
     if (inputFile.is_open()) {
@@ -40,6 +39,14 @@ Game::~Game()
         delete platform; 
     }
     platforms.clear();
+}
+
+sf::Font Game::loadFont() {
+    sf::Font f;
+    if (!f.loadFromFile("fonts/ariblk.ttf")) {
+        cerr << "Failed to load font!" << std::endl;
+    }
+    return f;
 }
 
 void Game::loadTextures()
@@ -117,6 +124,13 @@ void Game::processEvents()
 
 void Game::update(float dt) 
 {
+if (currentState == GameState::Menu || currentState == GameState::Settings) {
+        if (!soundManager.isMusicPlaying()) { 
+            soundManager.playMusic("sounds/MainMenu_Song.flac");
+        }
+    } else {
+        soundManager.stopMusic(); 
+    }
     switch (currentState) {
         case GameState::Menu    : updateMenu(dt)    ; break;
         case GameState::Settings: updateSettings(dt); break; 

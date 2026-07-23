@@ -1,27 +1,34 @@
 #include "SettingMenu.hpp"
+#include "SoundManager.hpp"
 #include <algorithm>
 #include <cmath>
+#include <fstream>
+#include <iostream>
+#include <stdexcept>
+
+using namespace std;
 
 SettingsMenu::SettingsMenu(float windowWidth, float windowHeight, ResourceManager<sf::Texture>& textureMgr, const sf::Font& font) {
+    volume = soundManager.getVolume();
     float centerX = windowWidth / 2.0f;
 
     titleText.setFont(font);
     titleText.setString("SETTINGS");
-    titleText.setCharacterSize(40);
+    titleText.setCharacterSize(50);
     titleText.setFillColor(sf::Color::Black);
     sf::FloatRect tb = titleText.getLocalBounds();
-    titleText.setOrigin(tb.width / 2.0f, tb.top + tb.height / 2.0f);
+    titleText.setOrigin(tb.left + tb.width / 2.0f, tb.top + tb.height / 2.0f);
     titleText.setPosition(centerX, 70.0f);
 
     volLabel.setFont(font);
     volLabel.setString("Volume");
     volLabel.setCharacterSize(26);
-    volLabel.setFillColor(sf::Color::Black);
-    tb = volLabel.getLocalBounds();
-    volLabel.setOrigin(tb.width / 2.0f, tb.top + tb.height / 2.0f);
-    volLabel.setPosition(centerX, 150.0f);
+    volLabel.setFillColor(sf::Color::Blue);
+    sf::FloatRect tbV = volLabel.getLocalBounds();
+    volLabel.setOrigin(tbV.left + tbV.width / 2.0f, tbV.top + tbV.height / 2.0f);
+    volLabel.setPosition(centerX, 170.0f);
 
-    //slider
+    //SLIDER
     sliderTrack.setSize(sf::Vector2f(260.0f, 8.0f));
     sliderTrack.setFillColor(sf::Color(180, 190, 205));
     sliderTrack.setOrigin(130.0f, 4.0f);
@@ -37,7 +44,9 @@ SettingsMenu::SettingsMenu(float windowWidth, float windowHeight, ResourceManage
 
     updateSliderUI();
 
-    backSprite.setTexture(textureMgr.load("back_button", "assets/back_button.png"));    sf::FloatRect sb = backSprite.getLocalBounds();
+    // --- BACK BUTTON ---
+    backSprite.setTexture(textureMgr.load("back_button", "assets/back_button.png"));
+    sf::FloatRect sb = backSprite.getLocalBounds();
     backSprite.setOrigin(sb.width / 2.0f, sb.height / 2.0f);
     backSprite.setPosition(centerX, windowHeight - 90.0f);
     backSprite.setScale(0.5f, 0.5f);
@@ -80,6 +89,7 @@ bool SettingsMenu::handleEvent(const sf::Event& event, const sf::RenderWindow& w
         float clampedX = std::clamp(mouse.x, trackX, trackX + trackWidth);
 
         volume = ((clampedX - trackX) / trackWidth) * 100.0f;
+        soundManager.setVolume(volume);
         updateSliderUI();
     }
 
