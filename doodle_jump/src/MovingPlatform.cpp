@@ -1,4 +1,5 @@
 #include "MovingPlatform.hpp"
+#include "Constants.hpp"
 
 MovingPlatform::MovingPlatform(sf::Texture& texture, sf::Vector2f pos)
     : Platform(texture, pos)
@@ -17,8 +18,8 @@ void MovingPlatform
         position.x = 0.f;
         direction = 1; // change direction to right
     } 
-    else if (position.x + platformWidth >= 600.f) {
-        position.x = 600.f - platformWidth;
+    else if (position.x + platformWidth >= float(Config::Window::WIDTH)) {
+        position.x = float(Config::Window::WIDTH) - platformWidth;
         direction = -1; // change direction to left
     }
 

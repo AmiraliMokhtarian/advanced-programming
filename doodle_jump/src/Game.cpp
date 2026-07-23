@@ -2,6 +2,7 @@
 #include "NormalPlatform.hpp"
 #include "MovingPlatform.hpp"
 #include "BrokenPlatform.hpp"
+#include "Constants.hpp"
 #include <cstdlib> //srand
 #include <ctime>   //time
 #include <iostream>
@@ -9,12 +10,12 @@
 #include <fstream>
 
 Game::Game()
-    : window(sf::VideoMode(600, 800), "Doodle Jump")
+    : window(sf::VideoMode(Config::Window::WIDTH, Config::Window::HEIGHT), "Doodle Jump")
     , currentState(GameState::Menu)
     , player(textures.load("player_left", "assets/left_doodle.png"), 
              textures.load("player_right", "assets/right_doodle.png"))
 {
-    window.setFramerateLimit(60);
+    window.setFramerateLimit(Config::Window::FPS_LIMIT);
     std::srand(static_cast<unsigned int>(std::time(nullptr))); 
 
     loadTextures();
@@ -52,16 +53,16 @@ void Game::loadTextures()
     backgroundSprite.setTexture(textures.get("background"));
 
     startButtonSprite.setTexture(textures.get("start_button"));
-    float buttonX = (600.f - startButtonSprite.getGlobalBounds().width) / 2.f;
+    float buttonX = (float(Config::Window::WIDTH) - startButtonSprite.getGlobalBounds().width) / 2.f;
     float buttonY = 400.f;
     startButtonSprite.setPosition(buttonX, buttonY);
 
     restartButtonSprite.setTexture(textures.get("restart"));
-    float restartX = (600.f - restartButtonSprite.getGlobalBounds().width) / 2.f;
+    float restartX = (float(Config::Window::WIDTH) - restartButtonSprite.getGlobalBounds().width) / 2.f;
     restartButtonSprite.setPosition(restartX, 460.f);
 
     menuButtonSprite.setTexture(textures.get("menu"));
-    float menuX = (600.f - menuButtonSprite.getGlobalBounds().width) / 2.f;
+    float menuX = (float(Config::Window::WIDTH) - menuButtonSprite.getGlobalBounds().width) / 2.f;
     menuButtonSprite.setPosition(menuX, 550.f);
 }
 
@@ -135,7 +136,7 @@ void Game::updateGameplay(float dt)
 
     scoreText.setString("Score: " + std::to_string(player.getScore()));
 
-    if (player.getPosition().y > 800.f) {
+    if (player.getPosition().y > float(Config::Window::HEIGHT)) {
         if (player.getScore() > highScore) {
             highScore = player.getScore(); 
         
@@ -208,7 +209,7 @@ void Game::handleScrolling(float dt)
             
             platform->scroll(offsetY);
 
-            if (platform->getPosition().y > 800.f)
+            if (platform->getPosition().y > float(Config::Window::HEIGHT))
             {
                 delete platform;
                 it = platforms.erase(it); //memory management
@@ -221,7 +222,7 @@ void Game::handleScrolling(float dt)
 
         while (platforms.size() < 12) 
         {
-            float highestY = 800.f;
+            float highestY = float(Config::Window::HEIGHT);
             for (auto* p : platforms) {
                 if (p->getPosition().y < highestY) {
                     highestY = p->getPosition().y;
@@ -272,7 +273,7 @@ void Game::renderMenu()
     window.draw(startButtonSprite);
 
     highScoreText.setString("High Score: " + std::to_string(highScore));
-    float hsX = (600.f - highScoreText.getGlobalBounds().width) / 2.f;
+    float hsX = (float(Config::Window::WIDTH) - highScoreText.getGlobalBounds().width) / 2.f;
     highScoreText.setPosition(hsX, 530.f);
     window.draw(highScoreText);
 }
@@ -293,15 +294,15 @@ void Game::renderGameOver()
     window.clear();
     window.draw(backgroundSprite);
 
-    gameOverTitleText.setPosition((600.f - gameOverTitleText.getGlobalBounds().width) / 2.f, 150.f);
+    gameOverTitleText.setPosition((float(Config::Window::WIDTH) - gameOverTitleText.getGlobalBounds().width) / 2.f, 150.f);
     window.draw(gameOverTitleText);
 
     finalScoreText.setString("Your Score: " + std::to_string(player.getScore()));
-    finalScoreText.setPosition((600.f - finalScoreText.getGlobalBounds().width) / 2.f, 260.f);
+    finalScoreText.setPosition((float(Config::Window::WIDTH) - finalScoreText.getGlobalBounds().width) / 2.f, 260.f);
     window.draw(finalScoreText);
 
     gameOverHighScoreText.setString("High Score: " + std::to_string(highScore));
-    gameOverHighScoreText.setPosition((600.f - gameOverHighScoreText.getGlobalBounds().width) / 2.f, 330.f);
+    gameOverHighScoreText.setPosition((float(Config::Window::WIDTH) - gameOverHighScoreText.getGlobalBounds().width) / 2.f, 330.f);
     window.draw(gameOverHighScoreText);
 
     window.draw(restartButtonSprite);
@@ -362,7 +363,7 @@ void Game::initUI()
     titleText.setCharacterSize(55); 
     titleText.setFillColor(sf::Color::Black);
     titleText.setStyle(sf::Text::Bold);
-    float titleX = (600.f - titleText.getGlobalBounds().width) / 2.f;
+    float titleX = (float(Config::Window::WIDTH) - titleText.getGlobalBounds().width) / 2.f;
     titleText.setPosition(titleX, 200.f); 
 
     highScoreText.setFont(font);
