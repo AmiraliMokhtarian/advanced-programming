@@ -124,7 +124,7 @@ void Game::processEvents()
 
 void Game::update(float dt) 
 {
-if (currentState == GameState::Menu || currentState == GameState::Settings) {
+    if (currentState == GameState::Menu || currentState == GameState::Settings) {
         if (!soundManager.isMusicPlaying()) { 
             soundManager.playMusic("sounds/MainMenu_Song.flac");
         }
@@ -185,6 +185,7 @@ void Game::updateGameplay(float dt)
     scoreText.setString("Score: " + std::to_string(player.getScore()));
 
     if (player.getPosition().y > float(Config::Window::HEIGHT)) {
+        soundManager.playLose();
         if (player.getScore() > highScore) {
             highScore = player.getScore(); 
         
@@ -208,6 +209,7 @@ void Game::handleCollisions()
             {
                 player.setVelocity(sf::Vector2f(player.getVelocity().x, -900.f)); 
                 platform->triggerSpring();
+                soundManager.playJump();
                 return;
             }
 
@@ -216,12 +218,13 @@ void Game::handleCollisions()
                     BrokenPlatform* broken = dynamic_cast<BrokenPlatform*>(platform);
                     if (broken) {
                         broken->breakPlatform();
+                        soundManager.playJump();
                         player.bounce();
                     } 
                     else {
+                        soundManager.playJump();
                         player.bounce(); 
                     }
-
                     break; 
                 }
             }
