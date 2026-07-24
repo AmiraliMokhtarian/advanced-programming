@@ -3,6 +3,7 @@
 #include "MovingPlatform.hpp"
 #include "BrokenPlatform.hpp"
 #include "Constants.hpp"
+#include "Monster.hpp"
 #include <cstdlib> // srand
 #include <ctime>   // time
 #include <iostream>
@@ -39,9 +40,34 @@ Game::~Game()
         delete platform; 
     }
     platforms.clear();
+    clearMonsters();
 }
 
-sf::Font Game::loadFont() {
+void Game::clearMonsters() 
+{
+    for (auto* monster : monsters) {
+        delete monster;
+    }
+    monsters.clear();
+}
+
+void Game::resetGame() 
+{
+    for (auto* platform : platforms) {
+        delete platform;
+    }
+    platforms.clear();
+    clearMonsters();
+
+    player.setPosition(sf::Vector2f(300.f, 600.f));
+    player.setVelocity(sf::Vector2f(0.f, 0.f));
+    player.resetScore();
+
+    generateInitialPlatforms();
+}
+
+sf::Font Game::loadFont() 
+{
     sf::Font f;
     if (!f.loadFromFile("fonts/ariblk.ttf")) {
         cerr << "Failed to load font!" << std::endl;
@@ -90,6 +116,9 @@ void Game::loadTextures()
     sf::FloatRect mb = menuButtonSprite.getLocalBounds();
     menuButtonSprite.setOrigin(mb.width / 2.0f, mb.height / 2.0f);
     menuButtonSprite.setPosition(centerX, 550.f);
+
+    textures.load("monster_green", "assets/green_monster.png");
+    textures.load("monster_blue", "assets/BlueMonster.png");
 }
 
 void Game::run() 
@@ -160,6 +189,7 @@ void Game::updateMenu(float dt)
 
         if (startButtonSprite.getGlobalBounds().contains(mousePosF)) 
         {
+            resetGame();
             currentState = GameState::Gameplay;
         }
         else if (settingsButtonSprite.getGlobalBounds().contains(mousePosF))
@@ -179,13 +209,19 @@ void Game::updateGameplay(float dt)
     for (auto* platform : platforms) {
         platform->update(dt); 
     }
+
+    for (auto* monster : monsters) {
+        monster->update(dt);
+    } 
+
     handleCollisions();
     handleScrolling(dt);
 
     scoreText.setString("Score: " + std::to_string(player.getScore()));
 
     if (player.getPosition().y > float(Config::Window::HEIGHT)) {
-        soundManager.playLose();
+        if (currentState != GameState::GameOver)
+            soundManager.playLose();
         if (player.getScore() > highScore) {
             highScore = player.getScore(); 
         
@@ -230,6 +266,33 @@ void Game::handleCollisions()
             }
         }
     }
+
+    for (auto* monster : monsters) 
+    {
+        if (!monster->isAlive()) continue;
+
+        sf::FloatRect monsterBounds = monster->getBounds();
+        sf::FloatRect playerBounds = player.getBounds();
+
+        if (playerBounds.intersects(monsterBounds)) 
+        {
+            if (player.getVelocity().y > 0.f && 
+                (playerBounds.top + playerBounds.height <= monsterBounds.top + 25.f)) 
+            {
+                monster->takeDamage(1);
+                player.bounce();
+                soundManager.playJump();
+            } 
+            else 
+            {
+                if (currentState != GameState::GameOver) {
+                    soundManager.playLose();
+                    currentState = GameState::GameOver;
+                }
+                break;
+            }
+        }
+    }
 }
 
 void Game::handleScrolling(float dt) 
@@ -255,6 +318,21 @@ void Game::handleScrolling(float dt)
             {
                 delete platform;
                 it = platforms.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
+        }
+
+        for (auto it = monsters.begin(); it != monsters.end(); )
+        {
+            (*it)->setPosition(sf::Vector2f((*it)->getPosition().x, (*it)->getPosition().y + offsetY));
+
+            if ((*it)->getPosition().y > float(Config::Window::HEIGHT) + 50.f)
+            {
+                delete *it;
+                it = monsters.erase(it);
             }
             else
             {
@@ -290,11 +368,12 @@ void Game::updateGameOver(float dt)
                 delete platform;
             }
             platforms.clear();
+            clearMonsters();
 
             player.setPosition(sf::Vector2f(300.f, 600.f));
             player.setVelocity(sf::Vector2f(0.f, 0.f));
             player.resetScore();
-
+            resetGame();
             generateInitialPlatforms();
             currentState = GameState::Gameplay;
         }
@@ -333,6 +412,10 @@ void Game::renderGameplay()
 
     for (auto* platform : platforms) {
         platform->render(window);
+    }
+
+    for (auto* monster : monsters) {
+        monster->render(window);
     }
     player.render(window);
     window.draw(scoreText);
@@ -390,6 +473,29 @@ void Game::spawnPlatform(float yPosition) {
     } 
     else {
         platforms.push_back(new BrokenPlatform(textures.get("platform_broken"), sf::Vector2f(xPosition, yPosition)));
+    }
+
+    spawnMonster(yPosition);
+}
+
+void Game::spawnMonster(float yPosition) {
+    if (player.getScore() < 100) {
+        return;
+    }
+
+    if (rand() % 100 < 15) { 
+        float xPos = static_cast<float>(rand() % (Config::Window::WIDTH - 160) + 80);
+        //between platforms not on top of them
+        float monsterY = yPosition - 80.f;
+
+        MonsterType type = (rand() % 2 == 0) ? MonsterType::Green : MonsterType::Blue;
+        int monsterHealth = 1;
+
+        const sf::Texture& tex = (type == MonsterType::Green) ? 
+                                 textures.get("monster_green") : 
+                                 textures.get("monster_blue");
+
+        monsters.push_back(new Monster(sf::Vector2f(xPos, monsterY), tex, type, monsterHealth));
     }
 }
 
