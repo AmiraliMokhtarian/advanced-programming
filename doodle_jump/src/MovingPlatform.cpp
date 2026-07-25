@@ -1,9 +1,9 @@
 #include "MovingPlatform.hpp"
 #include "Constants.hpp"
 
-MovingPlatform::MovingPlatform(sf::Texture& texture, sf::Vector2f pos)
+MovingPlatform::MovingPlatform(sf::Texture& texture, sf::Vector2f pos, float speed)
     : Platform(texture, pos)
-    , speed(150.f) 
+    , speed(speed) 
     , direction(1)
 {}
 

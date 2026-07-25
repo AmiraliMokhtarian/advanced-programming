@@ -147,12 +147,9 @@ void Game::processEvents()
             window.close();
 
         if (currentState == GameState::Settings) {
-            bool backPressed = settingsMenu.handleEvent(event, window);
-            
-            soundManager.setVolume(settingsMenu.getVolume());
-
-            if (backPressed) {
-                currentState = GameState::Menu;
+            if (settingsMenu.handleEvent(event, window)) { 
+                    updateSettingsFromMenu(); 
+                    currentState = GameState::Menu; 
             }
         }
     }
@@ -160,13 +157,16 @@ void Game::processEvents()
 
 void Game::update(float dt) 
 {
-    if (currentState == GameState::Menu || currentState == GameState::Settings) {
-        if (!soundManager.isMusicPlaying()) { 
-            soundManager.playMusic("sounds/MainMenu_Song.flac");
-        }
-    } else {
-        soundManager.stopMusic(); 
+    bool wantsMenuMusic = (currentState == GameState::Menu || currentState == GameState::Settings);
+    bool wasMenuMusic   = (previousState == GameState::Menu || previousState == GameState::Settings);
+
+    if (wantsMenuMusic && !wasMenuMusic) {
+        soundManager.playMusic("sounds/MainMenu_Song.flac"); 
+    } else if (!wantsMenuMusic && wasMenuMusic) {
+        soundManager.stopMusic(); // just once for exit
     }
+    previousState = currentState;
+
     switch (currentState) {
         case GameState::Menu    : updateMenu(dt)    ; break;
         case GameState::Settings: updateSettings(dt); break; 
@@ -437,7 +437,6 @@ void Game::updateGameOver(float dt)
             player.setVelocity(sf::Vector2f(0.f, 0.f));
             player.resetScore();
             resetGame();
-            generateInitialPlatforms();
             currentState = GameState::Gameplay;
         }
         else if (menuButtonSprite.getGlobalBounds().contains(mousePosF)) 
@@ -543,7 +542,7 @@ void Game::spawnPlatform(float yPosition) {
         platforms.push_back(np);
     } 
     else if (randType < 90) {
-        platforms.push_back(new MovingPlatform(textures.get("platform_moving"), sf::Vector2f(xPosition, yPosition)));
+        platforms.push_back(new MovingPlatform(textures.get("platform_moving"), sf::Vector2f(xPosition, yPosition), settings.movingPlatformSpeed));
     } 
     else {
         platforms.push_back(new BrokenPlatform(textures.get("platform_broken"), sf::Vector2f(xPosition, yPosition)));
@@ -569,7 +568,7 @@ void Game::spawnMonster(float yPosition) {
                                  textures.get("monster_green") : 
                                  textures.get("monster_blue");
 
-        monsters.push_back(new Monster(sf::Vector2f(xPos, monsterY), tex, type, monsterHealth));
+        monsters.push_back(new Monster(sf::Vector2f(xPos, monsterY), tex, type, settings.monsterHealth));
     }
 }
 
@@ -616,4 +615,14 @@ void Game::initUI()
     gameOverHighScoreText.setCharacterSize(26);
     gameOverHighScoreText.setFillColor(sf::Color(0, 102, 204));
     gameOverHighScoreText.setStyle(sf::Text::Bold);
+}
+
+void Game::setDifficulty(Difficulty level) {
+    currentDifficulty = level;
+    settings = DifficultyConfig::getSettings(level);
+}
+
+void Game::updateSettingsFromMenu() {
+    soundManager.setVolume(settingsMenu.getVolume());
+    setDifficulty(settingsMenu.getDifficulty());
 }

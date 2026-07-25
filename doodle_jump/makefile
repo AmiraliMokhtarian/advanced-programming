@@ -1,5 +1,6 @@
 CXX      := g++
-CXXFLAGS := -std=c++17 -Iinclude 
+CXXFLAGS := -std=c++17 -Iinclude -IC:/SFML-2.6.2/include 
+LDFLAGS := -LC:/SFML-2.6.2/lib
 
 SFMLFLAGS := -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 
@@ -15,7 +16,7 @@ OBJS    := $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRCS))
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CXX) $(OBJS) -o $(TARGET) $(SFMLFLAGS)
+	$(CXX) $(OBJS) $(LDFLAGS) -o $(TARGET) $(SFMLFLAGS)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@

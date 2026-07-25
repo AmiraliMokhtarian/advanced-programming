@@ -9,6 +9,7 @@
 #include "SoundManager.hpp"
 #include "Monster.hpp"
 #include "Bullet.hpp"
+#include "Difficulty.hpp"
 
 class Game {
 public:
@@ -51,6 +52,7 @@ private:
     sf::Font loadFont();
 
     GameState currentState;
+    GameState previousState = GameState::GameOver;
     Player player;
     vector<Platform*> platforms;
     vector<Monster*> monsters;
@@ -76,4 +78,10 @@ private:
 
     vector<Bullet*> bullets;
     sf::Clock fireClock;
+
+    Difficulty currentDifficulty = Difficulty::EASY;
+    DifficultySettings settings = DifficultyConfig::getSettings(Difficulty::EASY);
+
+    void setDifficulty(Difficulty level);
+    void updateSettingsFromMenu();
 };

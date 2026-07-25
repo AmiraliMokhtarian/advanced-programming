@@ -16,7 +16,7 @@ public:
     void setPosition(sf::Vector2f pos);
 
     bool isAlive() const;
-    void takeDamage(int amount = 1);
+    void takeDamage(int amount = 3);
     int getHealth() const;
 
 

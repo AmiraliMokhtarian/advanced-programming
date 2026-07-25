@@ -3,7 +3,7 @@
 
 class MovingPlatform : public Platform {
 public:
-    MovingPlatform(sf::Texture& texture, sf::Vector2f pos);
+    MovingPlatform(sf::Texture& texture, sf::Vector2f pos, float speed);
     void update(float dt) override;
 
 private:
