@@ -232,25 +232,21 @@ void Game::updateGameplay(float dt)
     for (auto it = bullets.begin(); it != bullets.end(); ) {
         (*it)->update(dt);
         if ((*it)->isOutOfBounds()) {
-            delete *it;            // آزاد کردن حافظه Heap
-            it = bullets.erase(it); // حذف از Vector
+            delete *it;            
+            it = bullets.erase(it);
         } else {
             ++it;
         }
     }
 
-    // 4. بررسی برخورد تیرها با هیولاها (با متدهای Monster که خودت فرستادی)
     for (auto bIt = bullets.begin(); bIt != bullets.end(); ) {
         bool bulletDestroyed = false;
 
         for (auto mIt = monsters.begin(); mIt != monsters.end(); ) {
-            // بررسی تقاطع تیر و هیولا
             if ((*bIt)->getBounds().intersects((*mIt)->getBounds())) {
                 
-                // کم کردن HP هیولا با متد خودت
                 (*mIt)->takeDamage(1);
 
-                // بررسی زنده بودن هیولا با متد isAlive
                 if (!(*mIt)->isAlive()) {
                     delete *mIt;
                     mIt = monsters.erase(mIt);
@@ -261,7 +257,7 @@ void Game::updateGameplay(float dt)
                 delete *bIt;
                 bIt = bullets.erase(bIt);
                 bulletDestroyed = true;
-                break; // خرج از حلقه هیولاها چون تیر نابود شد
+                break; 
             } else {
                 ++mIt;
             }
