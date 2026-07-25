@@ -85,6 +85,7 @@ private:
     Difficulty currentDifficulty = Difficulty::EASY;
     DifficultySettings settings = DifficultyConfig::getSettings(Difficulty::EASY);
 
+    bool isAreaFree(const sf::FloatRect& area) const;
     void setDifficulty(Difficulty level);
     void updateSettingsFromMenu();
 };

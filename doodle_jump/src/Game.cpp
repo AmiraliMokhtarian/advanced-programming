@@ -504,6 +504,16 @@ void Game::renderGameOver()
     window.draw(menuButtonSprite);
 }
 
+bool Game::isAreaFree(const sf::FloatRect& area) const {
+    for (auto* platform : platforms) {
+        if (platform->getBounds().intersects(area)) return false;
+    }
+    for (auto* monster : monsters) {
+        if (monster->getBounds().intersects(area)) return false;
+    }
+    return true;
+}
+
 void Game::generateInitialPlatforms() {
     sf::Vector2f playerPos = player.getPosition();
 
@@ -521,12 +531,14 @@ void Game::generateInitialPlatforms() {
 }
 
 void Game::spawnPlatform(float yPosition) {
-    float xPosition = static_cast<float>(std::rand() % (Config::Window::WIDTH - 60)); 
-    if (!platforms.empty()) {
-        sf::Vector2f lastPos = platforms.back()->getPosition();
-        if (abs(yPosition - lastPos.y) < 40.f && std::abs(xPosition - lastPos.x) < 80.f) {
-            xPosition = fmod(lastPos.x + 150.f, window.getSize().x - 70.f);
-        }
+    const sf::Vector2f platformSize(60.f, 20.f);
+    float xPosition = 0.f;
+
+    //find somewhere without any overlap
+    for (int attempt = 0; attempt < 15; ++attempt) {
+        xPosition = static_cast<float>(std::rand() % (Config::Window::WIDTH - 60));
+        sf::FloatRect candidate(xPosition, yPosition, platformSize.x, platformSize.y);
+        if (isAreaFree(candidate)) break;
     }
 
     int randType = std::rand() % 100;
@@ -549,23 +561,26 @@ void Game::spawnPlatform(float yPosition) {
 }
 
 void Game::spawnMonster(float yPosition) {
-    if (player.getScore() < 100) {
-        return;
-    }
+    if (player.getScore() < 100) return;
+    if (rand() % 100 >= 15) return;
 
-    if (rand() % 100 < 15) { 
+    const sf::Vector2f monsterSize(50.f, 50.f); 
+
+    for (int attempt = 0; attempt < 15; ++attempt) {
         float xPos = static_cast<float>(rand() % (Config::Window::WIDTH - 160) + 80);
-        //between platforms not on top of them
         float monsterY = yPosition - 60.f;
+        sf::FloatRect candidate(xPos, monsterY, monsterSize.x, monsterSize.y);
 
-        MonsterType type = (rand() % 2 == 0) ? MonsterType::Green : MonsterType::Blue;
-        int monsterHealth = 1;
+        if (isAreaFree(candidate)) {
+            MonsterType type = (rand() % 2 == 0) ? MonsterType::Green : MonsterType::Blue;
 
-        const sf::Texture& tex = (type == MonsterType::Green) ? 
-                                 textures.get("monster_green") : 
-                                 textures.get("monster_blue");
+            const sf::Texture& tex = (type == MonsterType::Green) ? 
+                                     textures.get("monster_green") : 
+                                     textures.get("monster_blue");
 
-        monsters.push_back(new Monster(sf::Vector2f(xPos, monsterY), tex, type, settings.monsterHealth));
+            monsters.push_back(new Monster(sf::Vector2f(xPos, monsterY), tex, type, settings.monsterHealth));
+            return; 
+        }
     }
 }
 
