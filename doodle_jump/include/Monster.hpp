@@ -19,6 +19,8 @@ public:
     void takeDamage(int amount = 1);
     int getHealth() const;
 
+
+
 private:
     sf::Sprite sprite;
     MonsterType type;

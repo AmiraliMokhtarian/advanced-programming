@@ -121,6 +121,10 @@ void Game::loadTextures()
 
     textures.load("monster_green", "assets/green_monster.png");
     textures.load("monster_blue", "assets/BlueMonster.png");
+
+    textures.load("shoot_body", "assets/Shooting@Pose.png");
+    textures.load("nose", "assets/Nose.png");
+    player.setShootingTextures(textures.get("shoot_body"), textures.get("nose"));
 }
 
 void Game::run() 
@@ -206,7 +210,67 @@ void Game::updateSettings(float dt) {}
 void Game::updateGameplay(float dt) 
 {
     player.handleInput();
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+        player.setShooting(true);
+
+        float fireInterval = 0.2f; 
+
+        if (fireClock.getElapsedTime().asSeconds() >= fireInterval) {
+            sf::Vector2f noseTip = player.getNoseTipPosition();
+            bullets.push_back(new Bullet(noseTip.x, noseTip.y));
+
+            soundManager.playShoot();
+            fireClock.restart();
+        }
+    } else {
+        player.setShooting(false);
+    }
+
     player.update(dt, window.getSize().x);
+
+    for (auto it = bullets.begin(); it != bullets.end(); ) {
+        (*it)->update(dt);
+        if ((*it)->isOutOfBounds()) {
+            delete *it;            // آزاد کردن حافظه Heap
+            it = bullets.erase(it); // حذف از Vector
+        } else {
+            ++it;
+        }
+    }
+
+    // 4. بررسی برخورد تیرها با هیولاها (با متدهای Monster که خودت فرستادی)
+    for (auto bIt = bullets.begin(); bIt != bullets.end(); ) {
+        bool bulletDestroyed = false;
+
+        for (auto mIt = monsters.begin(); mIt != monsters.end(); ) {
+            // بررسی تقاطع تیر و هیولا
+            if ((*bIt)->getBounds().intersects((*mIt)->getBounds())) {
+                
+                // کم کردن HP هیولا با متد خودت
+                (*mIt)->takeDamage(1);
+
+                // بررسی زنده بودن هیولا با متد isAlive
+                if (!(*mIt)->isAlive()) {
+                    delete *mIt;
+                    mIt = monsters.erase(mIt);
+                } else {
+                    ++mIt;
+                }
+
+                delete *bIt;
+                bIt = bullets.erase(bIt);
+                bulletDestroyed = true;
+                break; // خرج از حلقه هیولاها چون تیر نابود شد
+            } else {
+                ++mIt;
+            }
+        }
+
+        if (!bulletDestroyed) {
+            ++bIt;
+        }
+    }
 
     for (auto* platform : platforms) {
         platform->update(dt); 
@@ -416,6 +480,10 @@ void Game::renderGameplay()
         platform->render(window);
     }
 
+    for (auto bullet : bullets) {
+        bullet->render(window); 
+    }
+    
     for (auto* monster : monsters) {
         monster->render(window);
     }

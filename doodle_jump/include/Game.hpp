@@ -8,6 +8,7 @@
 #include "SettingMenu.hpp"
 #include "SoundManager.hpp"
 #include "Monster.hpp"
+#include "Bullet.hpp"
 
 class Game {
 public:
@@ -72,4 +73,7 @@ private:
     sf::Text gameOverTitleText;
     sf::Text finalScoreText;
     sf::Text gameOverHighScoreText;
+
+    vector<Bullet*> bullets;
+    sf::Clock fireClock;
 };
