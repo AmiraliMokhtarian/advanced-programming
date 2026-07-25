@@ -9,6 +9,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <fstream>
+#include <cmath>
 
 Game::Game()
     : window(sf::VideoMode(Config::Window::WIDTH, Config::Window::HEIGHT), "Doodle Jump")
@@ -515,16 +516,23 @@ void Game::generateInitialPlatforms() {
 
     platforms.push_back(new NormalPlatform(textures.get("platform_normal"), sf::Vector2f(firstPlatformX, firstPlatformY)));
 
-    float currentY = firstPlatformY - (70.f + std::rand() % 80); 
+    float currentY = firstPlatformY - (85.f + std::rand() % 40); 
     while (currentY > 0.f) {
         spawnPlatform(currentY);
-        float gapY = 70.f + static_cast<float>(std::rand() % 80);
+        float gapY = 85.f + static_cast<float>(std::rand() % 40);
         currentY -= gapY;
     }
 }
 
 void Game::spawnPlatform(float yPosition) {
-    float xPosition = static_cast<float>(std::rand() % (600 - 60)); 
+    float xPosition = static_cast<float>(std::rand() % (Config::Window::WIDTH - 60)); 
+    if (!platforms.empty()) {
+        sf::Vector2f lastPos = platforms.back()->getPosition();
+        if (abs(yPosition - lastPos.y) < 40.f && std::abs(xPosition - lastPos.x) < 80.f) {
+            xPosition = fmod(lastPos.x + 150.f, window.getSize().x - 70.f);
+        }
+    }
+
     int randType = std::rand() % 100;
 
     if (randType < 70) {
@@ -552,7 +560,7 @@ void Game::spawnMonster(float yPosition) {
     if (rand() % 100 < 15) { 
         float xPos = static_cast<float>(rand() % (Config::Window::WIDTH - 160) + 80);
         //between platforms not on top of them
-        float monsterY = yPosition - 80.f;
+        float monsterY = yPosition - 60.f;
 
         MonsterType type = (rand() % 2 == 0) ? MonsterType::Green : MonsterType::Blue;
         int monsterHealth = 1;
