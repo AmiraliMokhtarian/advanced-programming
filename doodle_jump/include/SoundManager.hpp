@@ -3,12 +3,13 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-
-using namespace std;
+#include "ResourceManager.hpp"
 
 class SoundManager {
 public:
-    SoundManager() {
+    explicit SoundManager(ResourceManager<sf::SoundBuffer>& soundResources) 
+        : soundBuffers(soundResources) 
+    {
         ifstream inFile("settings.txt");
         if (inFile.is_open()) {
             inFile >> currentVolume;
@@ -18,7 +19,7 @@ public:
         }
 
         bgMusic.setVolume(currentVolume);
-        loadSFX();
+        initSFX();
     }
 
     ~SoundManager() {
@@ -80,24 +81,23 @@ public:
     }
 
 private:
-    void loadSFX() {
-        if (jumpBuffer.loadFromFile("sounds/Jumping_Sound.wav")) {
-            jumpSound.setBuffer(jumpBuffer);
-            jumpSound.setVolume(currentVolume);
-        } else {
-            cerr << "[SoundManager] Failed to load Jumping_Sound.wav\n";
-        }
+    void initSFX() {
+        try {
+            soundBuffers.load("jump", "sounds/Jumping_Sound.wav");
+            soundBuffers.load("lose", "sounds/Loosing_Sound.wav");
 
-        if (loseBuffer.loadFromFile("sounds/Loosing_Sound.wav")) {
-            loseSound.setBuffer(loseBuffer);
+            jumpSound.setBuffer(soundBuffers.get("jump"));
+            jumpSound.setVolume(currentVolume);
+
+            loseSound.setBuffer(soundBuffers.get("lose"));
             loseSound.setVolume(currentVolume);
-        } else {
-            cerr << "[SoundManager] Failed to load Loosing_Sounds.wav\n";
+        }
+        catch (const std::exception& e) {
+            std::cerr << "[SoundManager] Error loading sound buffers: " << e.what() << std::endl;
         }
     }
+    ResourceManager<sf::SoundBuffer>& soundBuffers;
 
-    sf::SoundBuffer jumpBuffer;
-    sf::SoundBuffer loseBuffer;
     sf::Sound jumpSound;
     sf::Sound loseSound;
 

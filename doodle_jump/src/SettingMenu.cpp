@@ -1,15 +1,20 @@
 #include "SettingMenu.hpp"
-#include "SoundManager.hpp"
 #include <algorithm>
 #include <cmath>
 #include <fstream>
 #include <iostream>
-#include <stdexcept>
 
 using namespace std;
 
 SettingsMenu::SettingsMenu(float windowWidth, float windowHeight, ResourceManager<sf::Texture>& textureMgr, const sf::Font& font) {
-    volume = soundManager.getVolume();
+    ifstream inFile("settings.txt");
+    if (inFile.is_open()) {
+        inFile >> volume;
+        inFile.close();
+    } else {
+        volume = 50.0f;
+    }
+
     float centerX = windowWidth / 2.0f;
 
     titleText.setFont(font);
@@ -28,7 +33,7 @@ SettingsMenu::SettingsMenu(float windowWidth, float windowHeight, ResourceManage
     volLabel.setOrigin(tbV.left + tbV.width / 2.0f, tbV.top + tbV.height / 2.0f);
     volLabel.setPosition(centerX, 170.0f);
 
-    //SLIDER
+    // SLIDER
     sliderTrack.setSize(sf::Vector2f(260.0f, 8.0f));
     sliderTrack.setFillColor(sf::Color(180, 190, 205));
     sliderTrack.setOrigin(130.0f, 4.0f);
@@ -44,7 +49,7 @@ SettingsMenu::SettingsMenu(float windowWidth, float windowHeight, ResourceManage
 
     updateSliderUI();
 
-    // --- BACK BUTTON ---
+    // BACK BUTTON
     backSprite.setTexture(textureMgr.load("back_button", "assets/back_button.png"));
     sf::FloatRect sb = backSprite.getLocalBounds();
     backSprite.setOrigin(sb.width / 2.0f, sb.height / 2.0f);
@@ -89,7 +94,6 @@ bool SettingsMenu::handleEvent(const sf::Event& event, const sf::RenderWindow& w
         float clampedX = std::clamp(mouse.x, trackX, trackX + trackWidth);
 
         volume = ((clampedX - trackX) / trackWidth) * 100.0f;
-        soundManager.setVolume(volume);
         updateSliderUI();
     }
 

@@ -49,6 +49,7 @@ private:
     Player player;
     std::vector<Platform*> platforms;
 
+    ResourceManager<sf::SoundBuffer> soundBuffers;
     SoundManager soundManager;      
     SettingsMenu settingsMenu;      
     

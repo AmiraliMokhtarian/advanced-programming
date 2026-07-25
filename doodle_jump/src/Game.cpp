@@ -13,6 +13,8 @@ Game::Game()
     : window(sf::VideoMode(Config::Window::WIDTH, Config::Window::HEIGHT), "Doodle Jump")
     , currentState(GameState::Menu)
     , font(loadFont())
+    , soundBuffers()
+    , soundManager(soundBuffers)
     , player(textures.load("player_left", "assets/left_doodle.png"), 
              textures.load("player_right", "assets/right_doodle.png"))
     , settingsMenu(static_cast<float>(Config::Window::WIDTH), static_cast<float>(Config::Window::HEIGHT), textures, font)

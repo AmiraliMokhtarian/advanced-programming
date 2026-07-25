@@ -2,8 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <string>
-#include "ResourceManager.hpp" 
-#include "SoundManager.hpp"
+#include "ResourceManager.hpp"
 
 enum class Difficulty { EASY, MEDIUM, HARD };
 
@@ -14,7 +13,7 @@ public:
     bool handleEvent(const sf::Event& event, const sf::RenderWindow& window);
     void render(sf::RenderWindow& window);
 
-    float getVolume() const { return volume;}
+    float getVolume() const { return volume; }
 
 private:
     sf::Text titleText;
@@ -29,5 +28,4 @@ private:
     sf::Sprite backSprite;
 
     void updateSliderUI();
-    SoundManager soundManager;
 };
