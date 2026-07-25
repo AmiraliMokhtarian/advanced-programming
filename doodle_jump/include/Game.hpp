@@ -10,6 +10,8 @@
 #include "Monster.hpp"
 #include "Bullet.hpp"
 #include "Difficulty.hpp"
+#include "SettingManager.hpp"
+#include "HighScoreManager.hpp"
 
 class Game {
 public:
@@ -58,6 +60,8 @@ private:
     vector<Monster*> monsters;
 
     ResourceManager<sf::SoundBuffer> soundBuffers;
+    SettingsManager settingsManager;
+    HighScoreManager highScoreMgr;
     SoundManager soundManager;      
     SettingsMenu settingsMenu;      
     
@@ -68,7 +72,6 @@ private:
     sf::Sprite startButtonSprite;
     sf::Text titleText;
     sf::Text highScoreText;
-    int highScore = 0;
     
     sf::Sprite restartButtonSprite;
     sf::Sprite menuButtonSprite;

@@ -16,10 +16,13 @@ Game::Game()
     , currentState(GameState::Menu)
     , font(loadFont())
     , soundBuffers()
-    , soundManager(soundBuffers)
+    , settingsManager()
+    , highScoreMgr()
+    , soundManager(soundBuffers, settingsManager.getVolume())
     , player(textures.load("player_left", "assets/left_doodle.png"), 
              textures.load("player_right", "assets/right_doodle.png"))
-    , settingsMenu(static_cast<float>(Config::Window::WIDTH), static_cast<float>(Config::Window::HEIGHT), textures, font)
+    , settingsMenu(static_cast<float>(Config::Window::WIDTH), static_cast<float>(Config::Window::HEIGHT), 
+                   textures, font, settingsManager.getVolume(), settingsManager.getDifficulty())
 {
     window.setFramerateLimit(Config::Window::FPS_LIMIT);
     std::srand(static_cast<unsigned int>(std::time(nullptr))); 
@@ -28,13 +31,7 @@ Game::Game()
     loadTextures();
     generateInitialPlatforms();
 
-    std::ifstream inputFile("highscore.txt");
-    if (inputFile.is_open()) {
-        inputFile >> highScore;
-        inputFile.close();
-    } else {
-        highScore = 0;
-    }
+    setDifficulty(settingsManager.getDifficulty());
 }
 
 Game::~Game() 
@@ -147,10 +144,12 @@ void Game::processEvents()
             window.close();
 
         if (currentState == GameState::Settings) {
-            if (settingsMenu.handleEvent(event, window)) { 
-                    updateSettingsFromMenu(); 
-                    currentState = GameState::Menu; 
-            }
+            bool backPressed = settingsMenu.handleEvent(event, window);
+    
+            updateSettingsFromMenu(); 
+
+            if (backPressed)
+                currentState = GameState::Menu;
         }
     }
 }
@@ -283,17 +282,12 @@ void Game::updateGameplay(float dt)
     scoreText.setString("Score: " + std::to_string(player.getScore()));
 
     if (player.getPosition().y > float(Config::Window::HEIGHT)) {
-        if (currentState != GameState::GameOver)
+        if (currentState != GameState::GameOver) {
             soundManager.playLose();
-        if (player.getScore() > highScore) {
-            highScore = player.getScore(); 
-        
-            std::ofstream outputFile("highscore.txt");
-            if (outputFile.is_open()) {
-                outputFile << highScore;
-                outputFile.close();
-            }
         }
+        
+        highScoreMgr.reportScore(currentDifficulty, player.getScore());
+        
         currentState = GameState::GameOver;
     }
 }
@@ -351,6 +345,7 @@ void Game::handleCollisions()
                 if (currentState != GameState::GameOver) {
                     soundManager.playLose();
                     currentState = GameState::GameOver;
+                    highScoreMgr.reportScore(currentDifficulty, player.getScore());
                 }
                 break;
             }
@@ -454,7 +449,8 @@ void Game::renderMenu()
     window.draw(titleText);
     window.draw(startButtonSprite);
     window.draw(settingsButtonSprite); 
-    highScoreText.setString("High Score: " + std::to_string(highScore));
+    highScoreText.setString("High Score (" + DifficultyConfig::name(currentDifficulty) + "): " + 
+                            to_string(highScoreMgr.get(currentDifficulty)));    
     float hsX = (float(Config::Window::WIDTH) - highScoreText.getGlobalBounds().width) / 2.f;
     highScoreText.setPosition(hsX, 220.f);
     window.draw(highScoreText);
@@ -499,7 +495,8 @@ void Game::renderGameOver()
     finalScoreText.setPosition((float(Config::Window::WIDTH) - finalScoreText.getGlobalBounds().width) / 2.f, 260.f);
     window.draw(finalScoreText);
 
-    gameOverHighScoreText.setString("High Score: " + std::to_string(highScore));
+    gameOverHighScoreText.setString("High Score (" + DifficultyConfig::name(currentDifficulty) + "): " + 
+                                    to_string(highScoreMgr.get(currentDifficulty)));
     gameOverHighScoreText.setPosition((float(Config::Window::WIDTH) - gameOverHighScoreText.getGlobalBounds().width) / 2.f, 330.f);
     window.draw(gameOverHighScoreText);
 
@@ -623,6 +620,8 @@ void Game::setDifficulty(Difficulty level) {
 }
 
 void Game::updateSettingsFromMenu() {
-    soundManager.setVolume(settingsMenu.getVolume());
+    settingsManager.setVolume(settingsMenu.getVolume());
+    settingsManager.setDifficulty(settingsMenu.getDifficulty());
     setDifficulty(settingsMenu.getDifficulty());
+    soundManager.setVolume(settingsMenu.getVolume());
 }

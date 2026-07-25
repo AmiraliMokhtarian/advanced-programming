@@ -27,4 +27,13 @@ public:
                 return DifficultySettings{ 3, 110.f, 0.05f, 0.15f };
         }
     }
+
+    static string name(Difficulty d) {
+        switch (d) {
+            case Difficulty::EASY:   return "EASY";
+            case Difficulty::MEDIUM: return "MEDIUM";
+            case Difficulty::HARD:   return "HARD";
+        }
+        return "";
+    }
 };

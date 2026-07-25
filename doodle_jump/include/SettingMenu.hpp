@@ -7,7 +7,8 @@
 
 class SettingsMenu {
 public:
-    SettingsMenu(float windowWidth, float windowHeight, ResourceManager<sf::Texture>& textureMgr, const sf::Font& font);
+    SettingsMenu(float windowWidth, float windowHeight, ResourceManager<sf::Texture>& textureMgr,
+                const sf::Font& font, float initialVolume, Difficulty initialDifficulty);
 
     bool handleEvent(const sf::Event& event, const sf::RenderWindow& window);
     void render(sf::RenderWindow& window);
@@ -41,5 +42,4 @@ private:
 
     void updateSliderUI();
     void updateDifficultyUI();
-    void saveSettings();
 };

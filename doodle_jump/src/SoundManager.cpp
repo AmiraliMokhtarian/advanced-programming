@@ -2,18 +2,9 @@
 #include <iostream>
 #include <fstream>
 
-SoundManager::SoundManager(ResourceManager<sf::SoundBuffer>& soundResources) 
-    : soundBuffers(soundResources) 
+SoundManager::SoundManager(ResourceManager<sf::SoundBuffer>& soundResources, float initialVolume) 
+    : soundBuffers(soundResources) , currentVolume(initialVolume) 
 {
-    std::ifstream inFile("settings.txt");
-    if (inFile.is_open()) {
-        inFile >> currentVolume;
-        inFile.close();
-    } else {
-        currentVolume = 50.0f; 
-    }
-
-    bgMusic.setVolume(currentVolume);
     initSFX();
 }
 
@@ -23,12 +14,6 @@ SoundManager::~SoundManager()
     jumpSound.stop();
     loseSound.stop();
     shootSound.stop();
-
-    std::ofstream outFile("settings.txt");
-    if (outFile.is_open()) {
-        outFile << currentVolume;
-        outFile.close();
-    }
 }
 
 bool SoundManager::playMusic(const std::string& filepath) 

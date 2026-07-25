@@ -5,7 +5,7 @@
 
 class SoundManager {
 public:
-    explicit SoundManager(ResourceManager<sf::SoundBuffer>& soundResources);
+    explicit SoundManager(ResourceManager<sf::SoundBuffer>& soundResources, float initialVolume);
     ~SoundManager();
 
     bool playMusic(const std::string& filepath);

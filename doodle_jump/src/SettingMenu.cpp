@@ -6,17 +6,11 @@
 
 using namespace std;
 
-SettingsMenu::SettingsMenu(float windowWidth, float windowHeight, ResourceManager<sf::Texture>& textureMgr, const sf::Font& font) {
-    ifstream inFile("settings.txt");
-    if (inFile.is_open()) {
-        int diffInt = 0;
-        inFile >> volume >> diffInt;
-        currentDifficulty = static_cast<Difficulty>(diffInt);
-        inFile.close();
-    } else {
-        volume = 50.0f;
-        currentDifficulty = Difficulty::EASY;
-    }
+SettingsMenu::SettingsMenu(float windowWidth, float windowHeight, ResourceManager<sf::Texture>& textureMgr, 
+                           const sf::Font& font, float initialVolume, Difficulty initialDifficulty) 
+{
+    volume = initialVolume;
+    currentDifficulty = initialDifficulty;
 
     float centerX = windowWidth / 2.0f;
 
@@ -134,14 +128,6 @@ void SettingsMenu::updateDifficultyUI() {
     }
 }
 
-void SettingsMenu::saveSettings() {
-    ofstream outFile("settings.txt");
-    if (outFile.is_open()) {
-        outFile << volume << " " << static_cast<int>(currentDifficulty);
-        outFile.close();
-    }
-}
-
 bool SettingsMenu::handleEvent(const sf::Event& event, const sf::RenderWindow& window) {
     sf::Vector2i mousePos = sf::Mouse::getPosition(window);
     sf::Vector2f mouse(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
@@ -155,13 +141,11 @@ bool SettingsMenu::handleEvent(const sf::Event& event, const sf::RenderWindow& w
             if (btn.box.getGlobalBounds().contains(mouse)) {
                 currentDifficulty = btn.level;
                 updateDifficultyUI();
-                saveSettings();
                 break;
             }
         }
 
         if (backSprite.getGlobalBounds().contains(mouse)) {
-            saveSettings();
             return true;
         }
     }
@@ -169,7 +153,6 @@ bool SettingsMenu::handleEvent(const sf::Event& event, const sf::RenderWindow& w
     if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) {
         if (isDragging) {
             isDragging = false;
-            saveSettings();
         }
     }
 
