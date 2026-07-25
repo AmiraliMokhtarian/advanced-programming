@@ -7,6 +7,7 @@
 #include "platform.hpp"
 #include "SettingMenu.hpp"
 #include "SoundManager.hpp"
+#include "Monster.hpp"
 
 class Game {
 public:
@@ -18,6 +19,7 @@ private:
     void processEvents();
     void update(float dt);
     void render();
+    void resetGame();
 
     void updateMenu(float dt);
     void updateGameplay(float dt);
@@ -37,6 +39,8 @@ private:
     // generating platforms
     void generateInitialPlatforms();
     void spawnPlatform(float yPosition);
+    void spawnMonster(float yPosition); 
+    void clearMonsters();
 
     void initUI();
 
@@ -47,7 +51,8 @@ private:
 
     GameState currentState;
     Player player;
-    std::vector<Platform*> platforms;
+    vector<Platform*> platforms;
+    vector<Monster*> monsters;
 
     ResourceManager<sf::SoundBuffer> soundBuffers;
     SoundManager soundManager;      

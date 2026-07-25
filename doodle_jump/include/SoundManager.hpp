@@ -23,6 +23,10 @@ public:
     }
 
     ~SoundManager() {
+        stopMusic();
+        jumpSound.stop();
+        loseSound.stop();
+
         ofstream outFile("settings.txt");
         if (outFile.is_open()) {
             outFile << currentVolume;
@@ -31,12 +35,15 @@ public:
     }
 
     bool playMusic(const string& filepath) {
-        if (currentMusicPath == filepath && bgMusic.getStatus() == sf::Music::Playing) {
+        if (currentMusicPath == filepath && bgMusic.getStatus() == sf::SoundSource::Playing) {
             return true;
         }
 
+        bgMusic.stop();
+
         if (!bgMusic.openFromFile(filepath)) {
             cerr << "[SoundManager] Failed to load music: " << filepath << endl;
+            currentMusicPath = "";
             return false;
         }
 
@@ -48,14 +55,13 @@ public:
     }
 
     void stopMusic() {
-        if (bgMusic.getStatus() == sf::Music::Playing) {
+        if (bgMusic.getStatus() != sf::SoundSource::Stopped) {
             bgMusic.stop();
-            currentMusicPath = "";
         }
     }
 
     bool isMusicPlaying() const {
-        return bgMusic.getStatus() == sf::Music::Playing;
+        return bgMusic.getStatus() == sf::SoundSource::Playing;
     }
 
     void playJump() {
