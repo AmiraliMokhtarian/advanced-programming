@@ -22,7 +22,7 @@ Monster::Monster(sf::Vector2f position, const sf::Texture& texture, MonsterType 
 }
 
 void Monster::update(float dt) {
-    if (!alive) return;
+    if (!isAlive()) return;
 
     sf::Vector2f pos = sprite.getPosition();
     pos.x += moveSpeed * moveDirection * dt;
@@ -52,7 +52,7 @@ void Monster::update(float dt) {
 }
 
 void Monster::render(sf::RenderWindow& window) {
-    if (alive) {
+    if (isAlive()) {
         window.draw(sprite);
     }
 }
@@ -70,16 +70,10 @@ void Monster::setPosition(sf::Vector2f pos) {
 }
 
 bool Monster::isAlive() const {
-    return alive && health > 0;
+    return health > 0;
 }
 
 void Monster::takeDamage(int amount) {
-    health -= amount;
-    if (health <= 0) {
-        alive = false;
-    }
-}
-
-int Monster::getHealth() const {
-    return health;
+    if(health > 0)
+        health -= amount;
 }

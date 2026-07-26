@@ -18,8 +18,3 @@ void BrokenPlatform::breakPlatform()
 {
     isBroken = true;
 }
-
-bool BrokenPlatform::isBrokenPlatform() const 
-{
-    return isBroken;
-}

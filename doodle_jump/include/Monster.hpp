@@ -17,15 +17,11 @@ public:
 
     bool isAlive() const;
     void takeDamage(int amount = 3);
-    int getHealth() const;
-
-
 
 private:
     sf::Sprite sprite;
     MonsterType type;
     int health;
-    bool alive{true};
 
     int frameWidth{0};
     int frameHeight{0};

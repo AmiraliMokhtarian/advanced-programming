@@ -77,11 +77,10 @@ void Game::resetGame()
     generateInitialPlatforms();
 }
 
-sf::Font Game::loadFont() 
-{
+sf::Font Game::loadFont() {
     sf::Font f;
     if (!f.loadFromFile("fonts/ariblk.ttf")) {
-        cerr << "Failed to load font!" << std::endl;
+        throw std::runtime_error("Failed to load critical game font.");
     }
     return f;
 }
@@ -240,7 +239,7 @@ void Game::updateGameplay(float dt)
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
         player.setShooting(true);
 
-        float fireInterval = 0.2f; 
+        float fireInterval = settings.fireRate; 
 
         if (fireClock.getElapsedTime().asSeconds() >= fireInterval) {
             sf::Vector2f noseTip = player.getNoseTipPosition();
@@ -371,7 +370,7 @@ void Game::handleCollisions()
                 (playerBounds.top + playerBounds.height <= monsterBounds.top + 25.f)) 
             {
                 monster->takeDamage(1);
-                player.bounce();
+                player.setVelocity(sf::Vector2f(player.getVelocity().x, -800.f)); //jump more than normal
                 soundManager.playJump();
             } 
             else 
@@ -463,17 +462,7 @@ void Game::updateGameOver(float dt)
         sf::Vector2i mousePos = sf::Mouse::getPosition(window);
         sf::Vector2f mousePosF(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
 
-        if (restartButtonSprite.getGlobalBounds().contains(mousePosF)) 
-        {
-            for (auto* platform : platforms) {
-                delete platform;
-            }
-            platforms.clear();
-            clearMonsters();
-
-            player.setPosition(sf::Vector2f(300.f, 600.f));
-            player.setVelocity(sf::Vector2f(0.f, 0.f));
-            player.resetScore();
+        if (restartButtonSprite.getGlobalBounds().contains(mousePosF)) {
             resetGame();
             currentState = GameState::Gameplay;
         }
@@ -486,7 +475,6 @@ void Game::updateGameOver(float dt)
 
 void Game::renderMenu() 
 {
-    window.clear();
     window.draw(backgroundSprite);
 
     window.draw(titleText);
@@ -501,14 +489,12 @@ void Game::renderMenu()
 
 void Game::renderSettings()
 {
-    window.clear();
     window.draw(backgroundSprite); 
     settingsMenu.render(window);   
 }
 
 void Game::renderGameplay() 
 {
-    window.clear();
     window.draw(backgroundSprite);
 
     for (auto* platform : platforms) {
@@ -532,7 +518,6 @@ void Game::renderGameplay()
 
 void Game::renderGameOver() 
 {
-    window.clear();
     window.draw(backgroundSprite);
 
     gameOverTitleText.setPosition((float(Config::Window::WIDTH) - gameOverTitleText.getGlobalBounds().width) / 2.f, 150.f);
@@ -615,7 +600,9 @@ void Game::spawnPlatform(float yPosition) {
 
 void Game::spawnMonster(float yPosition) {
     if (player.getScore() < 100) return;
-    if (rand() % 100 >= 15) return;
+
+    int spawnChance = static_cast<int>(settings.monsterSpawnRate * 100.f);
+    if (rand() % 100 >= spawnChance) return;
 
     const sf::Vector2f monsterSize(50.f, 50.f); 
 
@@ -684,12 +671,6 @@ void Game::spawnHole(float yPosition)
 
 void Game::initUI() 
 {
-    if (!font.loadFromFile("fonts/ariblk.ttf")) 
-    {
-        std::cerr << "Error: Could not load font from fonts/ariblk.ttf!" << std::endl;
-        throw std::runtime_error("Failed to load critical game font.");
-    }
-
     scoreText.setFont(font);
     scoreText.setCharacterSize(24); 
     scoreText.setFillColor(sf::Color::Black); 

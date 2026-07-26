@@ -7,7 +7,6 @@ public:
 
     void update(float dt) override;
     void breakPlatform();
-    bool isBrokenPlatform() const;
 
 private:
     bool isBroken;

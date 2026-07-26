@@ -28,6 +28,7 @@ sf::Vector2f Platform::getPosition() const
 void Platform::setPosition(sf::Vector2f pos)
 {
     position = pos;
+    sprite.setPosition(position);
 }
 
 void Platform::scroll(float offsetY) 

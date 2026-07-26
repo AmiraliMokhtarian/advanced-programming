@@ -4,8 +4,6 @@
 #include <string>
 #include "Difficulty.hpp"
 
-using namespace std;
-
 class HighScoreManager {
 public:
     HighScoreManager() { load(); }
@@ -13,7 +11,7 @@ public:
     int get(Difficulty d) const { return scores[idx(d)]; }
 
     bool reportScore(Difficulty d, int score) {
-        size_t i = idx(d);
+        std::size_t i = idx(d);
         if (score > scores[i]) {
             scores[i] = score;
             save();
@@ -23,12 +21,12 @@ public:
     }
 
 private:
-    array<int, 3> scores{0, 0, 0}; // EASY, MEDIUM, HARD
+    std::array<int, 3> scores{0, 0, 0}; // EASY, MEDIUM, HARD
 
-    static size_t idx(Difficulty d) { return static_cast<size_t>(d); }
+    static std::size_t idx(Difficulty d) { return static_cast<std::size_t>(d); }
 
     void load() {
-        ifstream in("highscore.txt");
+        std::ifstream in("highscore.txt");
         if (in.is_open()) { 
             in >> scores[0] >> scores[1] >> scores[2]; 
             in.close(); 
@@ -36,7 +34,7 @@ private:
     }
 
     void save() const {
-        ofstream out("highscore.txt");
+        std::ofstream out("highscore.txt");
         if (out.is_open()) { 
             out << scores[0] << " " << scores[1] << " " << scores[2]; 
             out.close(); 
