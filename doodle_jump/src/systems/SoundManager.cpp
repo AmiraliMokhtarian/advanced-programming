@@ -40,7 +40,7 @@ bool SoundManager::playMusic(const std::string& filepath)
 void SoundManager::stopMusic() 
 {
     if (bgMusic.getStatus() != sf::SoundSource::Stopped) {
-        bgMusic.pause();
+        bgMusic.stop();
     }
 }
 

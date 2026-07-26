@@ -2,3 +2,4 @@ game
 obj/
 *.o
 *.dll
+*.exe
