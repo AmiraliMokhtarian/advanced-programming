@@ -16,31 +16,31 @@ SoundManager::~SoundManager()
     shootSound.stop();
 }
 
+
 bool SoundManager::playMusic(const std::string& filepath) 
 {
-    if (currentMusicPath == filepath && bgMusic.getStatus() == sf::SoundSource::Playing) {
-        return true;
+    if (currentMusicPath != filepath) {
+        if (!bgMusic.openFromFile(filepath)) {
+            std::cerr << "[SoundManager] Failed to load music: " << filepath << std::endl;
+            currentMusicPath = "";
+            return false;
+        }
+        currentMusicPath = filepath;
+        bgMusic.setLoop(true);
+        bgMusic.setVolume(currentVolume);
     }
 
-    bgMusic.stop();
-
-    if (!bgMusic.openFromFile(filepath)) {
-        std::cerr << "[SoundManager] Failed to load music: " << filepath << std::endl;
-        currentMusicPath = "";
-        return false;
+    if (bgMusic.getStatus() != sf::SoundSource::Playing) {
+        bgMusic.play(); 
     }
-
-    currentMusicPath = filepath;
-    bgMusic.setLoop(true);
-    bgMusic.setVolume(currentVolume); 
-    bgMusic.play();
     return true;
 }
+
 
 void SoundManager::stopMusic() 
 {
     if (bgMusic.getStatus() != sf::SoundSource::Stopped) {
-        bgMusic.stop();
+        bgMusic.pause();
     }
 }
 
@@ -102,3 +102,4 @@ void SoundManager::initSFX()
         std::cerr << "[SoundManager] Error loading sound buffers: " << e.what() << std::endl;
     }
 }
+

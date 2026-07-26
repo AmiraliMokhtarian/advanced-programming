@@ -18,6 +18,7 @@ public:
 
     void setVolume(float volume);
     float getVolume() const;
+    
 
 private:
     void initSFX();

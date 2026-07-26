@@ -1,23 +1,21 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include <vector>
 #include "ResourceManager.hpp"
 #include "GameState.hpp"
 #include "player.hpp"
-#include "platform.hpp"
 #include "SettingMenu.hpp"
 #include "SoundManager.hpp"
-#include "Monster.hpp"
-#include "Bullet.hpp"
 #include "Difficulty.hpp"
 #include "SettingManager.hpp"
 #include "HighScoreManager.hpp"
-#include "Hole.hpp"
+#include "MenuScreen.hpp"
+#include "GameOverScreen.hpp"
+#include "GameWorld.hpp"
 
 class Game {
 public:
     Game();
-    ~Game();
+    ~Game() = default;
     void run();
 
 private:
@@ -36,62 +34,38 @@ private:
     void renderGameOver();
     void renderSettings();
 
-    // helper
-    void handleCollisions();
     void handleScrolling(float dt);
     void loadTextures();
-
-    // generating platforms
-    void generateInitialPlatforms();
-    void spawnPlatform(float yPosition);
-    void spawnMonster(float yPosition); 
-    void clearMonsters();
-
     void initUI();
+
+    void setDifficulty(Difficulty level);
+    void updateSettingsFromMenu();
 
     sf::RenderWindow window;
     ResourceManager<sf::Texture> textures;
-    sf::Font font; 
+    sf::Font font;
     sf::Font loadFont();
 
     GameState currentState;
     GameState previousState = GameState::GameOver;
-    Player player;
-    vector<Platform*> platforms;
-    vector<Monster*> monsters;
 
     ResourceManager<sf::SoundBuffer> soundBuffers;
     SettingsManager settingsManager;
     HighScoreManager highScoreMgr;
-    SoundManager soundManager;      
-    SettingsMenu settingsMenu;      
-    
-    sf::Sprite settingsButtonSprite;
+    SoundManager soundManager;
+
+    Player player;
+    SettingsMenu settingsMenu;
+    MenuScreen menuScreen;
+    GameOverScreen gameOverScreen;
+    GameWorld world;
+
     sf::Sprite backgroundSprite;
     sf::Text scoreText;
 
-    sf::Sprite startButtonSprite;
-    sf::Text titleText;
-    sf::Text highScoreText;
-    
-    sf::Sprite restartButtonSprite;
-    sf::Sprite menuButtonSprite;
-    sf::Text gameOverTitleText;
-    sf::Text finalScoreText;
-    sf::Text gameOverHighScoreText;
-
-    vector<Bullet*> bullets;
     sf::Clock fireClock;
 
     Difficulty currentDifficulty = Difficulty::EASY;
     DifficultySettings settings = DifficultyConfig::getSettings(Difficulty::EASY);
-
-    bool isAreaFree(const sf::FloatRect& area) const;
-    void setDifficulty(Difficulty level);
-    void updateSettingsFromMenu();
-
-    std::vector<Hole*> holes;
-
-    void clearHoles();
-    void spawnHole(float yPosition);
+    
 };

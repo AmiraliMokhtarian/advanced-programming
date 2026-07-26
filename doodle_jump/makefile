@@ -1,30 +1,29 @@
-CXX      := g++
-CXXFLAGS := -std=c++17 -Iinclude -IC:/SFML-2.6.2/include 
-LDFLAGS := -LC:/SFML-2.6.2/lib
+SFML_PREFIX := /ucrt64/local/sfml2
 
-SFMLFLAGS := -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
+CXX       := g++
+CXXFLAGS  := -std=c++17 -Iinclude -I$(SFML_PREFIX)/include
+SFMLFLAGS := -L$(SFML_PREFIX)/lib -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 
-SRC_DIR := src
-OBJ_DIR := obj
-INC_DIR := include
+SRC_DIR   := src
+OBJ_DIR   := obj
 
-TARGET  := game
+TARGET    := game.exe
 
-SRCS    := $(wildcard $(SRC_DIR)/*.cpp)
-OBJS    := $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRCS))
+SRCS      := $(wildcard $(SRC_DIR)/*.cpp)
+OBJS      := $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRCS))
 
-all: $(TARGET)
+all: create_obj $(TARGET)
+
+create_obj:
+	@mkdir -p $(OBJ_DIR)
 
 $(TARGET): $(OBJS)
-	$(CXX) $(OBJS) $(LDFLAGS) -o $(TARGET) $(SFMLFLAGS)
+	$(CXX) $(OBJS) -o $(TARGET) $(SFMLFLAGS)
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | create_obj
 	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(OBJ_DIR):
-	mkdir -p $(OBJ_DIR)
 
 clean:
 	rm -rf $(OBJ_DIR) $(TARGET)
 
-.PHONY: all clean
+.PHONY: all clean create_obj
