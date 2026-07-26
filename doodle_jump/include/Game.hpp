@@ -12,6 +12,7 @@
 #include "Difficulty.hpp"
 #include "SettingManager.hpp"
 #include "HighScoreManager.hpp"
+#include "Hole.hpp"
 
 class Game {
 public:
@@ -88,4 +89,9 @@ private:
     bool isAreaFree(const sf::FloatRect& area) const;
     void setDifficulty(Difficulty level);
     void updateSettingsFromMenu();
+
+    std::vector<Hole*> holes;
+
+    void clearHoles();
+    void spawnHole(float yPosition);
 };

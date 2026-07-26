@@ -41,6 +41,7 @@ Game::~Game()
     }
     platforms.clear();
     clearMonsters();
+    clearHoles();
 }
 
 void Game::clearMonsters() 
@@ -51,6 +52,14 @@ void Game::clearMonsters()
     monsters.clear();
 }
 
+void Game::clearHoles() 
+{
+    for (auto* hole : holes) {
+        delete hole;
+    }
+    holes.clear();
+}
+
 void Game::resetGame() 
 {
     for (auto* platform : platforms) {
@@ -58,6 +67,8 @@ void Game::resetGame()
     }
     platforms.clear();
     clearMonsters();
+    clearHoles();
+    player.cancelAbsorption();
 
     player.setPosition(sf::Vector2f(300.f, 600.f));
     player.setVelocity(sf::Vector2f(0.f, 0.f));
@@ -123,6 +134,9 @@ void Game::loadTextures()
     textures.load("shoot_body", "assets/Shooting@Pose.png");
     textures.load("nose", "assets/Nose.png");
     player.setShootingTextures(textures.get("shoot_body"), textures.get("nose"));
+
+    textures.load("hole_small", "assets/hole.png");
+    textures.load("hole_large", "assets/hole@2x.png");
 }
 
 void Game::run() 
@@ -209,6 +223,18 @@ void Game::updateSettings(float dt) {}
 
 void Game::updateGameplay(float dt) 
 {
+
+    if (player.isBeingAbsorbed()) {
+        player.updateAbsorption(dt);
+
+        if (player.isAbsorptionComplete()) {
+            soundManager.playLose();
+            highScoreMgr.reportScore(currentDifficulty, player.getScore());
+            currentState = GameState::GameOver;
+        }
+        return; //exit -> to stop the world
+    }
+
     player.handleInput();
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
@@ -277,6 +303,7 @@ void Game::updateGameplay(float dt)
     } 
 
     handleCollisions();
+    if (player.isBeingAbsorbed()) return; //don't scroll if there's an absorption
     handleScrolling(dt);
 
     scoreText.setString("Score: " + std::to_string(player.getScore()));
@@ -294,6 +321,13 @@ void Game::updateGameplay(float dt)
 
 void Game::handleCollisions()
 {
+    for (auto* hole : holes) {
+        if (player.getBounds().intersects(hole->getBounds())) {
+            player.startAbsorption(hole->getCenter());
+            return; //ignore other collisions
+        }
+    }
+
     if (player.getVelocity().y > 0.f) 
     {
         for (auto* platform : platforms) 
@@ -387,13 +421,22 @@ void Game::handleScrolling(float dt)
         {
             (*it)->setPosition(sf::Vector2f((*it)->getPosition().x, (*it)->getPosition().y + offsetY));
 
-            if ((*it)->getPosition().y > float(Config::Window::HEIGHT) + 50.f)
-            {
+            if ((*it)->getPosition().y > float(Config::Window::HEIGHT) + 50.f) {
                 delete *it;
-                it = monsters.erase(it);
+                it = monsters.erase(it); 
             }
-            else
-            {
+            else {
+                ++it;
+            }
+        }
+
+        for (auto it = holes.begin(); it != holes.end(); ) {
+            (*it)->scroll(offsetY);
+            if ((*it)->getPosition().y > float(Config::Window::HEIGHT) + 50.f) {
+                delete *it;
+                it = holes.erase(it);
+            } 
+            else {
                 ++it;
             }
         }
@@ -472,6 +515,10 @@ void Game::renderGameplay()
         platform->render(window);
     }
 
+    for (auto* hole : holes) {
+        hole->render(window);
+    }
+
     for (auto bullet : bullets) {
         bullet->render(window); 
     }
@@ -505,12 +552,15 @@ void Game::renderGameOver()
 }
 
 bool Game::isAreaFree(const sf::FloatRect& area) const {
-    for (auto* platform : platforms) {
+    for (auto* platform : platforms) 
         if (platform->getBounds().intersects(area)) return false;
-    }
-    for (auto* monster : monsters) {
+    
+    for (auto* monster : monsters)
         if (monster->getBounds().intersects(area)) return false;
-    }
+
+    for (auto* hole : holes)
+        if (hole->getBounds().intersects(area)) return false;
+    
     return true;
 }
 
@@ -558,6 +608,9 @@ void Game::spawnPlatform(float yPosition) {
     }
 
     spawnMonster(yPosition);
+
+    if (currentDifficulty == Difficulty::HARD)
+        spawnHole(yPosition);
 }
 
 void Game::spawnMonster(float yPosition) {
@@ -580,6 +633,51 @@ void Game::spawnMonster(float yPosition) {
 
             monsters.push_back(new Monster(sf::Vector2f(xPos, monsterY), tex, type, settings.monsterHealth));
             return; 
+        }
+    }
+}
+
+void Game::spawnHole(float yPosition) 
+{
+    if (player.getScore() < 100) return;
+    if (rand() % 100 >= 10) return;
+
+    HoleSize size = (rand() % 2 == 0) ? HoleSize::Small : HoleSize::Large;
+    
+    const sf::Texture& holeTex = (size == HoleSize::Small) ? 
+                                 textures.get("hole_small") : 
+                                 textures.get("hole_large");
+
+    //getting real size of texture
+    sf::Vector2f holeDims(static_cast<float>(holeTex.getSize().x), 
+                          static_cast<float>(holeTex.getSize().y));
+
+    auto isSafePath = [&](const sf::FloatRect& candidate) -> bool {
+        if (!isAreaFree(candidate)) return false;
+
+        const float SAFE_MARGIN_X = 60.f;
+        const float SAFE_MARGIN_Y = 60.f;
+
+        for (const auto* p : platforms) {
+            sf::FloatRect pBounds = p->getBounds();
+            if (std::abs(candidate.top - pBounds.top) < SAFE_MARGIN_Y) {
+                if (std::abs(candidate.left - pBounds.left) < SAFE_MARGIN_X) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    };
+
+    for (int attempt = 0; attempt < 15; ++attempt) {
+        float xPos = static_cast<float>(rand() % (Config::Window::WIDTH - static_cast<int>(holeDims.x) - 40) + 20);
+        float holeY = yPosition - (holeDims.y / 2.f);
+        
+        sf::FloatRect candidate(xPos, holeY, holeDims.x, holeDims.y);
+
+        if (isSafePath(candidate)) {
+            holes.push_back(new Hole(sf::Vector2f(xPos, holeY), holeTex, size));
+            return;
         }
     }
 }

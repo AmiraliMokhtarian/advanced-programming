@@ -104,3 +104,34 @@ void Player::bounce()
 {
     velocity.y = -650.f;
 }
+
+void Player::startAbsorption(sf::Vector2f holeCenter) 
+{
+    if (absorbing) return;
+    absorbing = true;
+    absorbProgress = 0.f;
+    absorbStartPos = position;
+    absorbTargetPos = holeCenter;
+    velocity = sf::Vector2f(0.f, 0.f); 
+}
+
+void Player::updateAbsorption(float dt) 
+{
+    if (!absorbing) return;
+
+    absorbProgress += dt / absorbDuration;
+    if (absorbProgress > 1.f) absorbProgress = 1.f;
+
+    position = absorbStartPos + (absorbTargetPos - absorbStartPos) * absorbProgress;
+    float scale = baseScale * (1.f - absorbProgress);
+
+    sprite.setPosition(position);
+    sprite.setScale(scale, scale);
+}
+
+void Player::cancelAbsorption() 
+{
+    absorbing = false;
+    absorbProgress = 0.f;
+    sprite.setScale(baseScale, baseScale);
+}

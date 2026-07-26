@@ -16,7 +16,7 @@ SettingsMenu::SettingsMenu(float windowWidth, float windowHeight, ResourceManage
 
     titleText.setFont(font);
     titleText.setString("SETTINGS");
-    titleText.setCharacterSize(45);
+    titleText.setCharacterSize(48);
     titleText.setFillColor(sf::Color(10, 40, 80));
     titleText.setStyle(sf::Text::Bold);
     sf::FloatRect tb = titleText.getLocalBounds();
@@ -25,18 +25,17 @@ SettingsMenu::SettingsMenu(float windowWidth, float windowHeight, ResourceManage
 
     volLabel.setFont(font);
     volLabel.setString("Volume");
-    volLabel.setCharacterSize(22);
+    volLabel.setCharacterSize(28);
     volLabel.setFillColor(sf::Color(10, 40, 80));
-    volLabel.setStyle(sf::Text::Bold);
     sf::FloatRect tbV = volLabel.getLocalBounds();
     volLabel.setOrigin(tbV.left + tbV.width / 2.0f, tbV.top + tbV.height / 2.0f);
-    volLabel.setPosition(centerX, 140.0f);
+    volLabel.setPosition(centerX, 170.0f);
 
     //SLIDER UI
     sliderTrack.setSize(sf::Vector2f(260.0f, 6.0f));
     sliderTrack.setFillColor(sf::Color(190, 200, 210));
     sliderTrack.setOrigin(130.0f, 3.0f);
-    sliderTrack.setPosition(centerX, 180.0f);
+    sliderTrack.setPosition(centerX, 200.0f);
 
     sliderKnob.setRadius(12.0f);
     sliderKnob.setFillColor(sf::Color(10, 40, 80));
@@ -45,18 +44,16 @@ SettingsMenu::SettingsMenu(float windowWidth, float windowHeight, ResourceManage
     volValueText.setFont(font);
     volValueText.setCharacterSize(16);
     volValueText.setFillColor(sf::Color::Black);
-    volValueText.setStyle(sf::Text::Bold);
 
     updateSliderUI();
 
     diffLabel.setFont(font);
     diffLabel.setString("Difficulty");
-    diffLabel.setCharacterSize(22);
+    diffLabel.setCharacterSize(28);
     diffLabel.setFillColor(sf::Color(10, 40, 80));
-    diffLabel.setStyle(sf::Text::Bold);
     sf::FloatRect tbD = diffLabel.getLocalBounds();
     diffLabel.setOrigin(tbD.left + tbD.width / 2.0f, tbD.top + tbD.height / 2.0f);
-    diffLabel.setPosition(centerX, 260.0f);
+    diffLabel.setPosition(centerX, 300.0f);
 
     //DIFFICULTY BUTTONS
     std::vector<std::pair<std::string, Difficulty>> levels = {
@@ -67,7 +64,7 @@ SettingsMenu::SettingsMenu(float windowWidth, float windowHeight, ResourceManage
 
     float btnWidth = 100.f;
     float btnHeight = 45.f;
-    float spacing = 12.f;
+    float spacing = 20.f;
     float totalWidth = (3 * btnWidth) + (2 * spacing);
     float startX = centerX - (totalWidth / 2.f) + (btnWidth / 2.f);
 
@@ -77,13 +74,14 @@ SettingsMenu::SettingsMenu(float windowWidth, float windowHeight, ResourceManage
 
         btn.box.setSize(sf::Vector2f(btnWidth, btnHeight));
         btn.box.setOrigin(btnWidth / 2.f, btnHeight / 2.f);
-        btn.box.setPosition(startX + i * (btnWidth + spacing), 320.0f);
+        btn.box.setPosition(startX + i * (btnWidth + spacing), 360.0f);
+        btn.box.setScale(1.2, 1.2);
         btn.box.setOutlineThickness(2.f);
         btn.box.setOutlineColor(sf::Color(10, 40, 80));
 
         btn.text.setFont(font);
         btn.text.setString(levels[i].first);
-        btn.text.setCharacterSize(16);
+        btn.text.setCharacterSize(18);
         btn.text.setStyle(sf::Text::Bold);
 
         sf::FloatRect textBounds = btn.text.getLocalBounds();

@@ -28,6 +28,12 @@ public:
     int getScore() const { return static_cast<int>(score); }
     void resetScore() { score = 0; }
 
+    void startAbsorption(sf::Vector2f holeCenter);
+    void updateAbsorption(float dt);
+    void cancelAbsorption();
+    bool isBeingAbsorbed() const { return absorbing; }
+    bool isAbsorptionComplete() const { return absorbing && absorbProgress >= 1.f; }
+
 private:
     sf::Sprite sprite;
     sf::Sprite noseSprite;
@@ -43,4 +49,11 @@ private:
 
     bool isFacingLeft = false;
     bool m_isShooting = false;
+
+    bool absorbing = false;
+    float absorbProgress = 0.f;
+    const float absorbDuration = 0.8f; //pause time
+    sf::Vector2f absorbStartPos;
+    sf::Vector2f absorbTargetPos;
+    const float baseScale = 0.9f;
 };
