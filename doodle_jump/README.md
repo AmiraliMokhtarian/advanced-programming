@@ -18,14 +18,11 @@ This project demonstrates clean code practices, Object-Oriented Programming (OOP
 
 ---
 
-📁 Directory Structure
-The project was refactored into a clean, multi-tier directory structure to ensure maintainability:
 
 ## 📁 Directory Structure
 
 The project was refactored into a clean, multi-tier directory structure to ensure maintainability:
 
-```text
 doodle_jump/
 ├── include/
 │   ├── core/         # Engine core, Game loop, State management, Constants
@@ -37,6 +34,7 @@ doodle_jump/
 ├── src/              # Implementation files matching header hierarchy
 ├── assets/           # Textures, Fonts, Audio files
 └── Makefile          # Recursive build setup with automatic dependency resolution
+
 --- 
 
 ## 🛠️ Tech Stack & Requirements
