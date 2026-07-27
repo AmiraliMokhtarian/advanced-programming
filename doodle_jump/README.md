@@ -1,6 +1,7 @@
-# 🚀 Doodle Jump - 2D Game Engine (Phase 1 & 2)
+# 🚀 Doodle Jump - 2D Game Engine
 
 A modular, component-based 2D platformer game engine inspired by the classic **Doodle Jump**, built from scratch using **C++** and **SFML**. 
+
 This project demonstrates clean code practices, Object-Oriented Programming (OOP) design patterns, real-time physics handling, and a flexible directory architecture designed for scalability.
 
 ---
@@ -18,31 +19,28 @@ This project demonstrates clean code practices, Object-Oriented Programming (OOP
 
 ---
 
-
 ## 📁 Directory Structure
-
-The project was refactored into a clean, multi-tier directory structure to ensure maintainability:
 
 doodle_jump/
 ├── include/
-│   ├── core/         # Engine core, Game loop, State management, Constants
-│   ├── entities/     # Player, Platforms (Normal, Moving, Broken), Monster, Bullet, Hole
-│   ├── systems/      # SoundManager, Difficulty, HighScoreManager, SettingManager
-│   ├── ui/           # MenuScreen, GameOverScreen, SettingMenu
-│   ├── utils/        # ResourceManager
-│   └── world/        # GameWorld logic & physics step
-├── src/              # Implementation files matching header hierarchy
-├── assets/           # Textures, Fonts, Audio files
-└── Makefile          # Recursive build setup with automatic dependency resolution
+│   ├── core/         (Engine core, Game loop, State management, Constants)
+│   ├── entities/     (Player, Platforms, Monster, Bullet, Hole)
+│   ├── systems/      (SoundManager, Difficulty, HighScoreManager, SettingManager)
+│   ├── ui/           (MenuScreen, GameOverScreen, SettingMenu)
+│   ├── utils/        (ResourceManager)
+│   └── world/        (GameWorld logic & physics step)
+├── src/              (Implementation files matching header hierarchy)
+├── assets/           (Textures, Fonts, Audio files)
+└── Makefile          (Recursive build setup with automatic dependency resolution)
 
---- 
+---
 
-## 🛠️ Tech Stack & Requirements
+## 🛠️ Tech Stack
 
 * **Language**: C++ (C++17 recommended)
 * **Graphics & Audio Library**: [SFML (Simple and Fast Multimedia Library)](https://www.sfml-dev.org/)
 * **Build System**: `Make` (Supports GCC / Clang)
-* **Environment Compatibility**: Windows (MSYS2 / UCRT64), WSL2, Linux, macOS
+* **Supported Environments**: Windows (MSYS2 / UCRT64), Native Linux
 
 ---
 
@@ -50,7 +48,8 @@ doodle_jump/
 
 * **Move Left:** `A` or `Left Arrow`
 * **Move Right:** `D` or `Right Arrow`
-* **Shoot Bullet:** `Space`
+* **Shoot Bullet:** `Space`, `Up Arrow`, or `Left Click`
+* **Pause / Menu:** `Esc`
 
 ---
 
