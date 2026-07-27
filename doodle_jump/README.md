@@ -21,6 +21,7 @@ This project demonstrates clean code practices, Object-Oriented Programming (OOP
 
 ## 📁 Directory Structure
 
+```text
 doodle_jump/
 ├── include/
 │   ├── core/         (Engine core, Game loop, State management, Constants)
@@ -32,6 +33,7 @@ doodle_jump/
 ├── src/              (Implementation files matching header hierarchy)
 ├── assets/           (Textures, Fonts, Audio files)
 └── Makefile          (Recursive build setup with automatic dependency resolution)
+```
 
 ---
 
@@ -48,8 +50,7 @@ doodle_jump/
 
 * **Move Left:** `A` or `Left Arrow`
 * **Move Right:** `D` or `Right Arrow`
-* **Shoot Bullet:** `Space`, `Up Arrow`, or `Left Click`
-* **Pause / Menu:** `Esc`
+* **Shoot Bullet:** `Space`
 
 ---
 
